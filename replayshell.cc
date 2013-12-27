@@ -21,13 +21,32 @@
 #include "config.h"
 #include "poller.hh"
 
-/* TESTING TWO DUMMY INTERFACES: dumb1 dumb2 with ips of egress and ingress addrs selected */
-
 using namespace std;
 using namespace PollerShortNames;
 
-int pause( void ) {
-    while(1) { } return 1;
+int eventloop( ChildProcess & child_process )
+{
+    /* set up signal file descriptor */
+    SignalMask signals_to_listen_for = { SIGCHLD, SIGCONT, SIGHUP, SIGTERM };
+    signals_to_listen_for.block(); /* don't let them interrupt us */
+
+    SignalFD signal_fd( signals_to_listen_for );
+
+    Poller poller;
+
+    /* we get signal -> main screen turn on -> handle signal */
+    poller.add_action( Poller::Action( signal_fd.fd(), Direction::In,
+                                       [&] () {
+                                           return handle_signal( signal_fd.read_signal(),
+                                                                 child_process );
+                                       } ) );
+
+    while ( true ) {
+        auto poll_result = poller.poll( 60000 );
+        if ( poll_result.result == Poller::Result::Type::Exit ) {
+            return poll_result.exit_status;
+        }
+    }
 }
 
 int main( int argc, char *argv[] )
@@ -46,61 +65,53 @@ int main( int argc, char *argv[] )
         auto ingress_octet = interfaces.first_unassigned_address( egress_octet.second + 1 );
         Address egress_addr = egress_octet.first, ingress_addr = ingress_octet.first;
 
-        /* make pair of devices */
-        //string egress_name = "veth-" + to_string( getpid() ), ingress_name = "veth-i" + to_string( getpid() );
-        //VirtualEthernetPair veth_devices( egress_name, ingress_name );
-        /* bring up egress */
-        //assign_address( egress_name, egress_addr, ingress_addr );
-        /* Fork */
-        ChildProcess container_process( [&]() {
-                /* bring up localhost */
-                interface_ioctl( Socket( UDP ).fd(), SIOCSIFFLAGS, "lo",
-                                 [] ( ifreq &ifr ) { ifr.ifr_flags = IFF_UP; } );
+        SystemCall( "unshare", unshare( CLONE_NEWNET ) );
 
-                run( { IP, "link", "add", "dumb0", "type", "dummy" } );
-                run( { IP, "link", "add", "dumb1", "type", "dummy" } );
-                interface_ioctl( Socket( UDP ).fd(), SIOCSIFFLAGS, "dumb0",
+/*        WebServer* apache1;
+
+        ChildProcess make_files( [&]() {
+                drop_privileges();
+                apache1 = new WebServer( "Listen 100.64.0.1:80", 80 );
+                cout << apache1 << endl;
+                return EXIT_SUCCESS;
+        } );
+        eventloop( make_files );
+*/
+
+        ChildProcess bash_process( [&]() {
+                cout << "BASH" << endl;
+                run( { IP, "link", "add", "dumb00", "type", "dummy" } );
+                run( { IP, "link", "add", "dumb11", "type", "dummy" } );
+                interface_ioctl( Socket( UDP ).fd(), SIOCSIFFLAGS, "dumb00",
                                  [] ( ifreq &ifr ) { ifr.ifr_flags = IFF_UP; } );
-                interface_ioctl( Socket( UDP ).fd(), SIOCSIFFLAGS, "dumb1",
+                interface_ioctl( Socket( UDP ).fd(), SIOCSIFFLAGS, "dumb11",
                                  [] ( ifreq &ifr ) { ifr.ifr_flags = IFF_UP; } );
-                interface_ioctl( Socket( UDP ).fd(), SIOCSIFADDR, "dumb0",
+                interface_ioctl( Socket( UDP ).fd(), SIOCSIFADDR, "dumb00",
                      [&] ( ifreq &ifr )
                      { ifr.ifr_addr = egress_addr.raw_sockaddr(); } );
-                interface_ioctl( Socket( UDP ).fd(), SIOCSIFADDR, "dumb1",
+                interface_ioctl( Socket( UDP ).fd(), SIOCSIFADDR, "dumb11",
                      [&] ( ifreq &ifr )
                      { ifr.ifr_addr = ingress_addr.raw_sockaddr(); } );
 
-                /* Fork again after dropping root privileges */
+                //apache1->start();
+                //drop_privileges();
+
+                WebServer apache1( "Listen 100.64.0.1:80", 80);
+                //WebServer apache2( "Listen 100.64.0.2:80", 80);
+
                 drop_privileges();
-                WebServer apache1( "Listen 100.64.0.1:80", 443);
-                ChildProcess bash_process( [&]() {
-                        /* restore environment and tweak bash prompt */
-                        environ = user_environment;
-                        prepend_shell_prefix( "[aliasing] " );
 
-                        const string shell = shell_path();
-                        SystemCall( "execl", execl( shell.c_str(), shell.c_str(), static_cast<char *>( nullptr ) ) );
-                        return EXIT_FAILURE;
-                    } );
-
-                return pause();
-            }, true ); /* new network namespace */
-
-        /* give ingress to container */
-        //run( { IP, "link", "set", "dev", ingress_name, "netns", to_string( container_process.pid() ) } );
-
-        /* bring up ingress */
-        in_network_namespace( container_process.pid(), [&] () {
-                /* bring up veth device */
-                //assign_address( ingress_name, ingress_addr, egress_addr );
-                //SystemCall( "ioctl SIOCADDRT", ioctl( Socket( UDP ).fd().num(), SIOCADDRT, &route ) );
-            } );
-
-        return pause();
+                /* restore environment and tweak bash prompt */
+                environ = user_environment;
+                prepend_shell_prefix( "[replayshell] " );
+                const string shell = shell_path();
+                SystemCall( "execl", execl( shell.c_str(), shell.c_str(), static_cast<char *>( nullptr ) ) );
+                return EXIT_FAILURE;
+        } );
+        return eventloop( bash_process );
     } catch ( const Exception & e ) {
         e.perror();
         return EXIT_FAILURE;
     }
-
     return EXIT_SUCCESS;
 }

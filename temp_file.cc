@@ -25,7 +25,7 @@ TempFile::TempFile( const string & contents )
 TempFile::~TempFile()
 {
     SystemCall( "close", close( fd_ ) );
-    //SystemCall( "remove", remove( file_name.c_str() ) ); 
+    SystemCall( "remove", remove( file_name.c_str() ) );
 }
 
 void TempFile::append( const string & contents )
