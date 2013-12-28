@@ -11,6 +11,8 @@ class WebServer
 {
 private:
     std::string config_file_name;
+    std::string pid_file_name;
+
 public:
     WebServer( const std::string & listen_line, int port );
     ~WebServer();
