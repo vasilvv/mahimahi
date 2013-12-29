@@ -22,6 +22,7 @@
 #include "socket.hh"
 #include "config.h"
 #include "poller.hh"
+#include "http_record.pb.h"
 
 using namespace std;
 using namespace PollerShortNames;
@@ -74,7 +75,7 @@ void list_files( const string & dir, vector< string > & files )
 
     while ( ( dirp = readdir( dp ) ) != NULL ) {
         if ( string( dirp->d_name ) != "." and string( dirp->d_name ) != ".." ) {
-            files.push_back( string( dirp->d_name ) );
+            files.push_back( "blah/" + string( dirp->d_name ) );
         }
     }
     SystemCall( "closedir", closedir( dp ) );
@@ -106,11 +107,17 @@ int main( int argc, char *argv[] )
         /* create and bring up two dummy interfaces */
         /* want to: go through recorded folder and for each file, check ip/port...if unique ip, make dummy, if unique ip/port, start web server ...consider dirent.h*/
         /* protobuf files are files with the serializedstring protobuf written to them */
+        /* for each file, we want to open it and use ParseFromFileDescriptor and then get the ip/port...we first have to initialize a protobuf with our thing and then call method */
 
         vector< string > files;
-        list_files( "recordtest", files );
+        list_files( "blah", files );
         for ( unsigned int i = 0; i < files.size(); i++ ) {
+            int fd = SystemCall( "open", open( files[i].c_str(), O_RDONLY ) );
+            HTTP_Record::reqrespair current_pair;
+            current_pair.ParseFromFileDescriptor( fd );
             cout << files[ i ] << endl;
+            cout << "IP: " << current_pair.ip() << endl;
+            SystemCall( "close", close( fd ) );
         }
 
         add_dummy_interface( "dumb00", egress_addr );
