@@ -81,6 +81,29 @@ void list_files( const string & dir, vector< string > & files )
     SystemCall( "closedir", closedir( dp ) );
 }
 
+/* make webserver for unique ip/port and dummy interface for each new ip */
+void handle_addr( const Address & current_addr, vector< Address > & unique_addrs, unsigned int & interface_counter )
+{
+    for ( unsigned int j = 0; j < unique_addrs.size(); j++ ) {
+        if ( current_addr == unique_addrs[ j ] ) { return; }
+        j++;
+    }
+
+    /* Address (ip/port pair) does not exist */
+    for ( unsigned int j = 0; j < unique_addrs.size(); j++ ) {
+        if ( current_addr.ip() == unique_addrs[ j ].ip() ) { /* same ip, check port */
+            assert( current_addr.port() != unique_addrs[ j ].port() );
+            WebServer( current_addr );
+            return;
+        }
+        j++;
+    }
+
+    /* ip does not exist */
+    add_dummy_interface( "dumb" + to_string( interface_counter ), current_addr );
+    interface_counter++;
+    WebServer ( current_addr );
+}
 
 int main( int argc, char *argv[] )
 {
@@ -91,42 +114,25 @@ int main( int argc, char *argv[] )
 
         check_requirements( argc, argv );
 
-        /* set egress and ingress ip addresses */
-        Interfaces interfaces;
-
-        auto egress_octet = interfaces.first_unassigned_address( 1 );
-        auto ingress_octet = interfaces.first_unassigned_address( egress_octet.second + 1 );
-        Address egress_addr = egress_octet.first, ingress_addr = ingress_octet.first;
-
         SystemCall( "unshare", unshare( CLONE_NEWNET ) );
 
         /* bring up localhost */
         interface_ioctl( Socket( UDP ).fd(), SIOCSIFFLAGS, "lo",
                          [] ( ifreq &ifr ) { ifr.ifr_flags = IFF_UP; } );
 
-        /* create and bring up two dummy interfaces */
-        /* want to: go through recorded folder and for each file, check ip/port...if unique ip, make dummy, if unique ip/port, start web server ...consider dirent.h*/
-        /* protobuf files are files with the serializedstring protobuf written to them */
-        /* for each file, we want to open it and use ParseFromFileDescriptor and then get the ip/port...we first have to initialize a protobuf with our thing and then call method */
-
+        unsigned int interface_counter = 0;
         vector< string > files;
+        vector< Address > unique_addrs;
         list_files( "blah", files );
         for ( unsigned int i = 0; i < files.size(); i++ ) {
             int fd = SystemCall( "open", open( files[i].c_str(), O_RDONLY ) );
             HTTP_Record::reqrespair current_pair;
             current_pair.ParseFromFileDescriptor( fd );
-            cout << files[ i ] << endl;
-            cout << "IP: " << current_pair.ip() << endl;
-            SystemCall( "close", close( fd ) );
+            Address current_addr( current_pair.ip(), current_pair.port() );
+            handle_addr( current_addr, unique_addrs, interface_counter );
         }
 
-        add_dummy_interface( "dumb00", egress_addr );
-        add_dummy_interface( "dumb11", ingress_addr );
-
         srandom( time( NULL ) );
-
-        WebServer apache1( Address( "100.64.0.1", 80 ) );
-        WebServer apache2( Address( "100.64.0.2", 80 ) );
 
         ChildProcess bash_process( [&]() {
                 drop_privileges();
