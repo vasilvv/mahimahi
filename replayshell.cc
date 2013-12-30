@@ -10,6 +10,7 @@
 #include <iostream>
 #include <vector>
 #include <dirent.h>
+#include <set>
 
 #include "util.hh"
 #include "get_address.hh"
@@ -27,7 +28,7 @@
 using namespace std;
 using namespace PollerShortNames;
 
-int eventloop( ChildProcess & child_process )
+int eventloop( ChildProcess & child_process, vector< WebServer* > & servers )
 {
     /* set up signal file descriptor */
     SignalMask signals_to_listen_for = { SIGCHLD, SIGCONT, SIGHUP, SIGTERM };
@@ -37,7 +38,6 @@ int eventloop( ChildProcess & child_process )
 
     Poller poller;
 
-    /* we get signal -> main screen turn on -> handle signal */
     poller.add_action( Poller::Action( signal_fd.fd(), Direction::In,
                                        [&] () {
                                            return handle_signal( signal_fd.read_signal(),
@@ -47,6 +47,10 @@ int eventloop( ChildProcess & child_process )
     while ( true ) {
         auto poll_result = poller.poll( 60000 );
         if ( poll_result.result == Poller::Result::Type::Exit ) {
+            /* call destructor for each web server created */
+            for( vector<WebServer*>::iterator it = servers.begin(); it != servers.end(); ++it) {
+                delete *it;
+            }
             return poll_result.exit_status;
         }
     }
@@ -81,30 +85,6 @@ void list_files( const string & dir, vector< string > & files )
     SystemCall( "closedir", closedir( dp ) );
 }
 
-/* make webserver for unique ip/port and dummy interface for each new ip */
-void handle_addr( const Address & current_addr, vector< Address > & unique_addrs, unsigned int & interface_counter )
-{
-    for ( unsigned int j = 0; j < unique_addrs.size(); j++ ) {
-        if ( current_addr == unique_addrs[ j ] ) { return; }
-        j++;
-    }
-
-    /* Address (ip/port pair) does not exist */
-    for ( unsigned int j = 0; j < unique_addrs.size(); j++ ) {
-        if ( current_addr.ip() == unique_addrs[ j ].ip() ) { /* same ip, check port */
-            assert( current_addr.port() != unique_addrs[ j ].port() );
-            WebServer( current_addr );
-            return;
-        }
-        j++;
-    }
-
-    /* ip does not exist */
-    add_dummy_interface( "dumb" + to_string( interface_counter ), current_addr );
-    interface_counter++;
-    WebServer ( current_addr );
-}
-
 int main( int argc, char *argv[] )
 {
     try {
@@ -120,19 +100,33 @@ int main( int argc, char *argv[] )
         interface_ioctl( Socket( UDP ).fd(), SIOCSIFFLAGS, "lo",
                          [] ( ifreq &ifr ) { ifr.ifr_flags = IFF_UP; } );
 
-        unsigned int interface_counter = 0;
+        /* provide seed for random number generator used to create apache pid files */
+        srandom( time( NULL ) );
+
         vector< string > files;
-        vector< Address > unique_addrs;
         list_files( "blah", files );
+        set< Address > unique_addrs;
+        set< string > unique_ips;
+        vector< WebServer* > servers;
+        unsigned int interface_counter = 0;
+
         for ( unsigned int i = 0; i < files.size(); i++ ) {
             int fd = SystemCall( "open", open( files[i].c_str(), O_RDONLY ) );
-            HTTP_Record::reqrespair current_pair;
-            current_pair.ParseFromFileDescriptor( fd );
-            Address current_addr( current_pair.ip(), current_pair.port() );
-            handle_addr( current_addr, unique_addrs, interface_counter );
-        }
+            HTTP_Record::reqrespair current_record;
+            current_record.ParseFromFileDescriptor( fd );
+            Address current_addr( current_record.ip(), current_record.port() );
+            auto result1 = unique_ips.emplace( current_addr.ip() );
+            if ( result1.second ) { /* new ip */
+                add_dummy_interface( "sharded" + to_string( interface_counter ), current_addr );
+                interface_counter++;
+            }
 
-        srandom( time( NULL ) );
+            auto result2 = unique_addrs.emplace( current_addr );
+            if ( result2.second ) { /* new address */
+                servers.emplace_back( new WebServer( current_addr ) );
+            }
+            SystemCall( "close", close( fd ) );
+        }
 
         ChildProcess bash_process( [&]() {
                 drop_privileges();
@@ -144,7 +138,7 @@ int main( int argc, char *argv[] )
                 SystemCall( "execl", execl( shell.c_str(), shell.c_str(), static_cast<char *>( nullptr ) ) );
                 return EXIT_FAILURE;
         } );
-        return eventloop( bash_process );
+        return eventloop( bash_process, servers );
     } catch ( const Exception & e ) {
         e.perror();
         return EXIT_FAILURE;
