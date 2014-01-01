@@ -46,6 +46,12 @@ replayshell_LDADD = -lrt
 replayshell_LDADD += protobufs/libhttprecordprotos.a -lm $(protobuf_LIBS)
 replayshell_LDFLAGS = -pthread
 
+bin_PROGRAMS += replayserver
+replayserver_SOURCES = $(common_source) replayserver.cc
+replayserver_LDADD = -lrt
+replayserver_LDADD += protobufs/libhttprecordprotos.a -lm $(protobuf_LIBS)
+replayserver_LDFLAGS = -pthread
+
 install-exec-hook:
 	chown root $(DESTDIR)$(bindir)/delayshell
 	chmod u+s $(DESTDIR)$(bindir)/delayshell
@@ -53,3 +59,5 @@ install-exec-hook:
 	chmod u+s $(DESTDIR)$(bindir)/recordshell
 	chown root $(DESTDIR)$(bindir)/replayshell
 	chmod u+s $(DESTDIR)$(bindir)/replayshell
+	chown root $(DESTDIR)$(bindir)/replayserver
+	chmod u+s $(DESTDIR)$(bindir)/replayserver
