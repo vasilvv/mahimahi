@@ -91,9 +91,9 @@ bool compare_requests( HTTP_Record::http_message & saved_req )
 int main()
 {
     try {
+        cout << "Content-type: text/html\r\n\r\n";
         /* print all environment variables */
         /*extern char **environ;
-        //cout << "Content-type: text/html\r\n\r\n";
         for(char **current = environ; *current; current++) {
             cout << *current << endl << "<br />\n";
         }*/
