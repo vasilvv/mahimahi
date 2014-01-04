@@ -117,8 +117,12 @@ int main( int argc, char *argv[] )
 
                 SystemCall( "ioctl SIOCADDRT", ioctl( Socket( UDP ).fd().num(), SIOCADDRT, &route ) );
             } );
+        unique_ptr<ChildProcess> recordr_process( new ChildProcess( [&]() {
+                drop_privileges();
+                return eventloop( move( dns_outside ), move( http_proxy ), nullptr, nullptr );
+        } ) );
 
-        return eventloop( move( dns_outside ), move( http_proxy ), move( container_process ), nullptr  );
+        return eventloop( nullptr, nullptr, move( container_process ), move( recordr_process ) );
     } catch ( const Exception & e ) {
         e.perror();
         return EXIT_FAILURE;
