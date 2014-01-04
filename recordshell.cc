@@ -23,8 +23,9 @@ using namespace std;
 using namespace PollerShortNames;
 
 int eventloop( unique_ptr<DNSProxy> && dns_proxy,
-               ChildProcess & child_process,
-               unique_ptr<HTTPProxy> && http_proxy );
+               unique_ptr<HTTPProxy> && http_proxy,
+               unique_ptr<ChildProcess> && child1,
+               unique_ptr<ChildProcess> && child2 );
 
 int main( int argc, char *argv[] )
 {
@@ -72,7 +73,7 @@ int main( int argc, char *argv[] )
         DNAT dnat( http_proxy->tcp_listener().local_addr(), egress_name );
 
         /* Fork */
-        ChildProcess container_process( [&]() {
+        unique_ptr<ChildProcess> container_process( new ChildProcess( [&]() {
                 /* bring up localhost */
                 interface_ioctl( Socket( UDP ).fd(), SIOCSIFFLAGS, "lo",
                                  [] ( ifreq &ifr ) { ifr.ifr_flags = IFF_UP; } );
@@ -85,7 +86,7 @@ int main( int argc, char *argv[] )
                 /* Fork again after dropping root privileges */
                 drop_privileges();
 
-                ChildProcess bash_process( [&]() {
+                unique_ptr<ChildProcess> bash_process( new ChildProcess( [&]() {
                         /* restore environment and tweak bash prompt */
                         environ = user_environment;
                         prepend_shell_prefix( "[record] " );
@@ -93,16 +94,16 @@ int main( int argc, char *argv[] )
                         const string shell = shell_path();
                         SystemCall( "execl", execl( shell.c_str(), shell.c_str(), static_cast<char *>( nullptr ) ) );
                         return EXIT_FAILURE;
-                    } );
+                    } ) );
 
-                return eventloop( move( dns_inside ), bash_process, nullptr );
-            }, true ); /* new network namespace */
+                return eventloop( move( dns_inside ), nullptr, move( bash_process ), nullptr );
+            }, true ) ); /* new network namespace */
 
         /* give ingress to container */
-        run( { IP, "link", "set", "dev", ingress_name, "netns", to_string( container_process.pid() ) } );
+        run( { IP, "link", "set", "dev", ingress_name, "netns", to_string( container_process->pid() ) } );
 
         /* bring up ingress */
-        in_network_namespace( container_process.pid(), [&] () {
+        in_network_namespace( container_process->pid(), [&] () {
                 /* bring up veth device */
                 assign_address( ingress_name, ingress_addr, egress_addr );
 
@@ -117,7 +118,7 @@ int main( int argc, char *argv[] )
                 SystemCall( "ioctl SIOCADDRT", ioctl( Socket( UDP ).fd().num(), SIOCADDRT, &route ) );
             } );
 
-        return eventloop( move( dns_outside ), container_process, move( http_proxy ) );
+        return eventloop( move( dns_outside ), move( http_proxy ), move( container_process ), nullptr  );
     } catch ( const Exception & e ) {
         e.perror();
         return EXIT_FAILURE;
@@ -127,8 +128,9 @@ int main( int argc, char *argv[] )
 }
 
 int eventloop( unique_ptr<DNSProxy> && dns_proxy,
-               ChildProcess & child_process,
-               unique_ptr<HTTPProxy> && http_proxy )
+               unique_ptr<HTTPProxy> && http_proxy,
+               unique_ptr<ChildProcess> && child1,
+               unique_ptr<ChildProcess> && child2 )
 {
     /* set up signal file descriptor */
     SignalMask signals_to_listen_for = { SIGCHLD, SIGCONT, SIGHUP, SIGTERM };
@@ -160,12 +162,23 @@ int eventloop( unique_ptr<DNSProxy> && dns_proxy,
                                            } ) );
     }
 
-    /* we get signal -> main screen turn on -> handle signal */
-    poller.add_action( Poller::Action( signal_fd.fd(), Direction::In,
-                                       [&] () {
-                                           return handle_signal( signal_fd.read_signal(),
-                                                                 child_process );
-                                       } ) );
+    if ( child1 ) {
+        /* we get signal -> main screen turn on -> handle signal */
+        poller.add_action( Poller::Action( signal_fd.fd(), Direction::In,
+                                           [&] () {
+                                               return handle_signal( signal_fd.read_signal(),
+                                                                     *child1 );
+                                           } ) );
+    }
+
+    if ( child2 ) {
+        /* we get signal -> main screen turn on -> handle signal */
+        poller.add_action( Poller::Action( signal_fd.fd(), Direction::In,
+                                           [&] () {
+                                               return handle_signal( signal_fd.read_signal(),
+                                                                     *child2 );
+                                           } ) );
+    }
 
     while ( true ) {
         auto poll_result = poller.poll( 60000 );
