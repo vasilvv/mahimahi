@@ -11,22 +11,24 @@
 #include "http_record.pb.h"
 #include "http_header.hh"
 #include "exception.hh"
+#include "http_message.hh"
 
 using namespace std;
 
 /* compare specific env header value and stored header value (if one does not exist, return true) */
 bool check_headers( const string & env_header, const string & stored_header, HTTP_Record::http_message & saved_req )
 {
-    string env_value;
     if ( getenv( env_header.c_str() ) == NULL ) {
         return true;
     }
+
+    string env_value;
 
     /* environment header was passed to us */
     env_value = string( getenv( env_header.c_str() ) );
     for ( int i = 0; i < saved_req.headers_size(); i++ ) {
         HTTPHeader current_header( saved_req.headers(i) );
-        if ( current_header.key() == stored_header ) { /* compare to environment variable */
+        if ( HTTPMessage::equivalent_strings( current_header.key(), stored_header ) ) { /* compare to environment variable */
             if ( current_header.value().substr( 0, current_header.value().find( "\r\n" ) ) == getenv( env_header.c_str() ) ) {
                 return true;
             } else {
