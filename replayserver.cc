@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <csignal>
-
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -111,19 +111,14 @@ int longest_substr( const string & str1, const string & str2 )
 int closest_match( const vector< HTTP_Record::reqrespair > & possible )
 {
     string req = string( getenv( "REQUEST_METHOD" ) ) + " " + string( getenv( "REQUEST_URI" ) ) + " " + string ( getenv( "SERVER_PROTOCOL" ) ) + "\r\n";
-    int longest_str = -1;
-    int index_of_best_match = 0;
-    int match_length;
+    vector< int > longest_str;
     for ( unsigned int i = 0; i < possible.size(); i++ ) {
         string current_req = possible.at( i ).req().first_line();
-        if ( (match_length = longest_substr( req, current_req) ) > longest_str ) {
-            longest_str = match_length;
-            index_of_best_match = i;
-        }
+        longest_str.emplace_back( longest_substr( req, current_req ) );
     }
-    return index_of_best_match;
+    vector< int >::iterator result = max_element( begin( longest_str ), end( longest_str ) );
+    return distance( begin( longest_str ), result );
 }
-
 
 void return_message( const HTTP_Record::reqrespair & record )
 {
@@ -164,11 +159,10 @@ int main()
                 cout << "HTTP/1.1 200 OK\r\n";
                 cout << "Content-Type: Text/html\r\nConnection: close\r\n";
                 cout << "Content-Length: 24\r\n\r\nCOULD NOT FIND AN OBJECT";
-                throw Exception( "replaymyserver", "Can't find: " + string( getenv( "REQUEST_METHOD" ) ) + " " + string( getenv( "REQUEST_URI" ) ) );
+                throw Exception( "replayserver", "Can't find: " + string( getenv( "REQUEST_METHOD" ) ) + " " + string( getenv( "REQUEST_URI" ) ) );
                 return EXIT_FAILURE;
-            } else { /* for now, return first stored possibility */
+            } else { /* return possible match with largest shared substring */
                 return_message( possible_matches.at( closest_match( possible_matches ) ) );
-                throw Exception( "replayserver", "Chose longest query string match for: " + string( getenv( "REQUEST_URI" ) ) );
             }
         }
     } catch ( const Exception & e ) {
