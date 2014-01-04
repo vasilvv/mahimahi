@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include <vector>
-#include <dirent.h>
 
 #include "util.hh"
 #include "system_runner.hh"
@@ -14,23 +13,6 @@
 #include "exception.hh"
 
 using namespace std;
-
-void list_files( const string & dir, vector< string > & files )
-{
-    DIR *dp;
-    struct dirent *dirp;
-
-    if( ( dp  = opendir( dir.c_str() ) ) == NULL ) {
-        throw Exception( "opendir" );
-    }
-
-    while ( ( dirp = readdir( dp ) ) != NULL ) {
-        if ( string( dirp->d_name ) != "." and string( dirp->d_name ) != ".." ) {
-            files.push_back( dir + string( dirp->d_name ) );
-        }
-    }
-    SystemCall( "closedir", closedir( dp ) );
-}
 
 /* compare specific env header value and stored header value (if one does not exist, return true) */
 bool check_headers( const string & env_header, const string & stored_header, HTTP_Record::http_message & saved_req )
