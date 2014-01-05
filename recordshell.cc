@@ -167,7 +167,7 @@ int eventloop( unique_ptr<DNSProxy> && dns_proxy,
     }
 
     if ( child1 ) {
-        /* we get signal -> main screen turn on -> handle signal */
+        /* we got a signal from child1 -> handle signal */
         poller.add_action( Poller::Action( signal_fd.fd(), Direction::In,
                                            [&] () {
                                                return handle_signal( signal_fd.read_signal(),
@@ -176,7 +176,7 @@ int eventloop( unique_ptr<DNSProxy> && dns_proxy,
     }
 
     if ( child2 ) {
-        /* we get signal -> main screen turn on -> handle signal */
+        /* we got a signal from child2 -> handle signal */
         poller.add_action( Poller::Action( signal_fd.fd(), Direction::In,
                                            [&] () {
                                                return handle_signal( signal_fd.read_signal(),
@@ -187,6 +187,9 @@ int eventloop( unique_ptr<DNSProxy> && dns_proxy,
     while ( true ) {
         auto poll_result = poller.poll( 60000 );
         if ( poll_result.result == Poller::Result::Type::Exit ) {
+            /* If we are exiting, kill any (possibly alive) children */
+            if ( child1 ) child1->signal( SIGKILL );
+            if ( child2 ) child2->signal( SIGKILL );
             return poll_result.exit_status;
         }
     }
