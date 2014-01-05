@@ -120,8 +120,8 @@ void check_storage_folder( const string & directory )
     assert( directory.back() == '/' );
 
     if ( not check_folder_existence( directory ) ) { /* folder exists */
-        /* make directory where group has all permissions */
-        SystemCall( "mkdir", mkdir( directory.c_str(), 00070 ) );
+        /* make directory where user has all permissions */
+        SystemCall( "mkdir", mkdir( directory.c_str(), 00700 ) );
     }
 }
 
