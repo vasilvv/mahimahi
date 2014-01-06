@@ -1,0 +1,21 @@
+PHTTP107.23.96.144"›
+:GET /85332.gif?partner_uid=PQ-00000002629397435 HTTP/1.1
+Host: idsync.rlcdn.com
+Connection: keep-alive
+Accept: image/webp,*/*;q=0.8
+vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
+DReferer: http://m.xp1.ru4.com/meta?_o=179638&_t=cmcont&ssv_ptnr=pm
+$Accept-Encoding: gzip,deflate,sdch
+!Accept-Language: en-US,en;q=0.8
+
+*á
+HTTP/1.1 302 Found
+#Cache-Control: no-cache, no-store
+%Date: Mon, 06 Jan 2014 21:12:18 GMT
+(Expires: Thu, 01 Jan 1970 00:00:00 GMT
+ŒLocation: http://idsync.rlcdn.com/85332.gif?redirect=1&rl=72b6c94279fc9863f00e70b795e75d5da9bb81cd32548c301dbd20fb7845bba0815e976a1799d4dd
+BP3P: CP: "NON DSP COR PSDo SAMo BUS IND UNI COM NAV INT POL PRE"
+MSet-Cookie: ck1=ck1;Domain=.rlcdn.com;Expires=Sat, 05-Jul-2014 21:12:16 GMT
+Content-Length: 0
+Connection: keep-alive
+

@@ -1,0 +1,31 @@
+PHTTP98.138.47.63"ÿ
+©GET /fpc.pl?_cb=91AJMwF8mB9h&.ys=2023538075&a=10001806365479&b=Yahoo&d=Mon%20Jan%2006%202014%2016%3A12%3A00%20GMT-0500%20(EST)&f=http%3A%2F%2Fwww.yahoo.com%2F&j=1920x1200&k=24&t=1389042720&l=true&dpid=2430272361&cf11=0&cf12=us&cf13=1&cf14=900&cf40=0&cf41=591&cf43=596&cf44=959&cf45=1390 HTTP/1.1
+Host: y.analytics.yahoo.com
+Connection: keep-alive
+Accept: */*
+vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
+ Referer: http://www.yahoo.com/
+$Accept-Encoding: gzip,deflate,sdch
+!Accept-Language: en-US,en;q=0.8
+"Cookie: B=cvj9rml9cm70j&b=3&s=tc
+
+*À
+HTTP/1.1 200 OK
+%Date: Mon, 06 Jan 2014 21:11:49 GMT
+ØP3P: policyref="http://info.yahoo.com/w3c/p3p.xml", CP="CAO DSP COR CUR ADM DEV TAI PSA PSD IVAi IVDi CONi TELo OTPi OUR DELi SAMi OTRi UNRi PUBi IND PHY ONL UNI PUR FIN COM NAV INT DEM CNT STA POL HEA PRE LOC GOV"
+˜Set-Cookie: itsc=4niroEBNaa|Za0a1zLQ|fvis10001806365479=|8Mo7YTsHY7|8Mo7YTsHY7|8Mo7YTsHY7|8|8Mo7YTsHY7|8Mo7YTsHY7; path=/; domain=.analytics.yahoo.com
+TS: 0 301 dc20_ne1
+Pragma: no-cache
+(Expires: Mon, 06 Jan 2014 21:11:50 GMT
+3Cache-Control: no-cache, private, must-revalidate
+Content-Length: 239
+Accept-Ranges: bytes
+#Tracking-Status: fpc site tracked
+Connection: close
+(Content-Type: application/x-javascript
+ñ
+// First Party Cookies
+// TS: 0 301 dc20_ne1
+
+window.ITTs[0].FPCV = 'Za0a1zLQ|4niroEBNaa|fses10001806365479=|4niroEBNaa|Za0a1zLQ|fvis10001806365479=|8Mo7YTsHY7|8Mo7YTsHY7|8Mo7YTsHY7|8|8Mo7YTsHY7|8Mo7YTsHY7';
+window.ITTs[0].setFPCookies();

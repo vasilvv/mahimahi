@@ -1,0 +1,19 @@
+PHTTP173.241.242.7"±
+UGET /set?pid=c4b194ba-c3f6-46d9-cc9e-de385e960a3a&rtb=PQ-00000002629397435 HTTP/1.1
+Host: r.openx.net
+Connection: keep-alive
+Accept: image/webp,*/*;q=0.8
+vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
+DReferer: http://m.xp1.ru4.com/meta?_o=179638&_t=cmcont&ssv_ptnr=pm
+$Accept-Encoding: gzip,deflate,sdch
+!Accept-Language: en-US,en;q=0.8
+
+*Í
+ HTTP/1.1 302 Moved Temporarily
+“Set-Cookie: i=d4addf4e-b26e-4f35-4a45-17084311aabb; Version=1; Expires=Tue, 06-Jan-2015 21:12:18 GMT; Max-Age=31536000; Domain=.openx.net; Path=/
+CServer: MochiWeb/1.1 WebMachine/1.10.0 (never breaks eye contact)
+#P3P: CP="CUR ADM OUR NOR STA NID"
+iLocation: http://r.openx.net/set?cc=1&pid=c4b194ba-c3f6-46d9-cc9e-de385e960a3a&rtb=PQ-00000002629397435
+%Date: Mon, 06 Jan 2014 21:12:18 GMT
+Content-Length: 0
+

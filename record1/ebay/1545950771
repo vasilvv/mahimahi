@@ -1,0 +1,18 @@
+PHTTP199.16.156.105"§
+AGET /i/adsct?p_user_id=PQ-00000002629397435&p_id=39232 HTTP/1.1
+Host: analytics.twitter.com
+Connection: keep-alive
+Accept: image/webp,*/*;q=0.8
+vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
+DReferer: http://m.xp1.ru4.com/meta?_o=179638&_t=cmcont&ssv_ptnr=pm
+$Accept-Encoding: gzip,deflate,sdch
+!Accept-Language: en-US,en;q=0.8
+
+*Â
+ HTTP/1.1 301 Moved Permanently
+content-length: 0
+%date: Mon, 06 Jan 2014 21:12:18 UTC
+[location: https://analytics.twitter.com/i/adsct?p_user_id=PQ-00000002629397435&p_id=39232
+server: tfe
+rset-cookie: guest_id=v1%3A138904273837724733; Domain=.twitter.com; Path=/; Expires=Wed, 06-Jan-2016 21:12:18 UTC
+

@@ -1,0 +1,11 @@
+www.google.com google
+www.facebook.com facebook
+www.yahoo.com yahoo
+www.amazon.com amazon
+www.ebay.com ebay
+www.wikipedia.org wikipedia
+www.linkedin.com linkedin
+www.twitter.com twitter
+www.bing.com bing
+www.pinterest.com pinterest
+www.paypal.com paypal

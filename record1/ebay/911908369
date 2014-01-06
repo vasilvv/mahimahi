@@ -1,0 +1,24 @@
+PHTTP199.38.165.155"ª
+XGET /meta?_o=65121&_t=tg&ssv_tg_1=&ssv_tg_2=&ssv_tg_3=000&ssv_tg_4=&ssv_duid= HTTP/1.1
+Host: m.xp1.ru4.com
+Connection: keep-alive
+Accept: image/webp,*/*;q=0.8
+vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
+DReferer: http://m.xp1.ru4.com/meta?_o=179638&_t=cmcont&ssv_ptnr=pm
+$Accept-Encoding: gzip,deflate,sdch
+!Accept-Language: en-US,en;q=0.8
+ñCookie: X1ID=PQ-00000002629397435; TMP_X1ID=PQ-00000002629397435; SEQUI_JRNL=#R498S1@416LCS499S1@416LCS501S1@416LCS790S1@416LCS798S1@416LCS2092S1@416LCS2210S1@416LCS2742S1@416LCS; 1780853-B1781017=3|55917934|0|0|0|55917933|55917932|-1; O179638=0@0@0@131072; C1780853=0@512; M62795-37246968=1; M62795-37036742=1; M62795-53707907=1; M62795-57726111=1; M62795-57764125=1
+
+*ë
+ HTTP/1.1 302 Moved Temporarily
+(Server: Sun-Java-System-Web-Server/7.0
+%Date: Mon, 06 Jan 2014 21:12:18 GMT
+BP3p: policyref="/w3c/p3p.xml", CP="NON DSP COR PSAa OUR STP UNI"
+Content-length: 0
+Pragma: no-cache
+¾Set-cookie: SEQUI_JRNL=#R498S1@416LCS499S1@416LCS501S1@416LCS790S1@416LCS798S1@416LCS2092S1@416LCS2210S1@416LCS2742S1@416LCS; domain=.ru4.com; path=/; expires=Mon, 01-Jan-2010 12:00:00 GMT
+RSet-cookie: 66281-B66290=1|0|0|0|0|55918319|55918318|-1; domain=.ru4.com; path=/
+\Set-cookie: O65121=0@0@0@0; domain=.ru4.com; path=/; expires=Mon, 01-Jan-2010 12:00:00 GMT
+XSet-cookie: C66281=0@0; domain=.ru4.com; path=/; expires=Mon, 01-Jan-2010 12:00:00 GMT
+8Location: http://http.content.ru4.com/images/pixel.gif
+

@@ -1,0 +1,24 @@
+PHTTP98.139.180.149"â
+KGET /p.gif;_ylp=A2KLtY0THMtSqaIAMDabvZx4?t=1389042720862&hpset=0 HTTP/1.1
+Host: www.yahoo.com
+Connection: keep-alive
+Accept: image/webp,*/*;q=0.8
+vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
+ Referer: http://www.yahoo.com/
+$Accept-Encoding: gzip,deflate,sdch
+!Accept-Language: en-US,en;q=0.8
+ÚCookie: B=cvj9rml9cm70j&b=3&s=tc; FBJSC=1389042707; fpc=d=2aLx_oBuM9zJuGcYZRw.gUBrxv2gkpmC7vzMTgcbQDloAWHB60Z9bPKil7mSS58iuXq2nXo9sZqDW9KLLtHZHgVhfw_LcUrPjGKxltIfFXZY7gQWjNfvq.YdIc6sEFzczTP_wHM5whbGVbyo1jsgIX0D6l6AWnbqDAQlR8s0KDIkDjoFgsn99sYb.5K6_8qf09DiiH4-&v=2; fpt=d=H3getYDRed2.V9CcRGE9G7HJxPtpGDUE6Ot.bL7WFyDOfTusCtRycPaksUqFXnyvsVtoToOYS2OE7w2m5d2aT_XDbRjy&v=1; ywadp10001806365479=2430272361; HP=0; fpms=p_30345871=%7B%22eupriv%22%3A1%7D; fpc10001806365479=Za0a1zLQ|4niroEBNaa|fses10001806365479=|4niroEBNaa|Za0a1zLQ|fvis10001806365479=|8Mo7YTsHY7|8Mo7YTsHY7|8Mo7YTsHY7|8|8Mo7YTsHY7|8Mo7YTsHY7
+
+*Ó
+HTTP/1.1 204 No Content
+Content-Type: text/plain
+Cache-Control: no-cache
+pragma: no-cache
+(Expires: Fri, 15 Apr 1994 00:00:00 GMT
+Content-Length: 0
+%Date: Mon, 06 Jan 2014 21:11:49 GMT
+Age: 0
+Connection: close
+KVia: HTTP/1.1 ir10.fp.bf1.yahoo.com (YahooTrafficServer/1.20.13 [c s f ])
+Server: YTS/1.20.13
+

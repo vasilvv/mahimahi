@@ -1,0 +1,11 @@
+www.google.com 249
+www.facebook.com 230
+www.yahoo.com 146
+www.amazon.com 259
+www.ebay.com 445
+www.wikipedia.org 281
+www.linkedin.com 166
+www.twitter.com 239
+www.bing.com 71
+www.pinterest.com 275
+www.paypal.com 374
