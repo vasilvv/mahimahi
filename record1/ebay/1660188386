@@ -1,25 +1,0 @@
-PHTTP66.135.216.134"Õ
-nGET /idmap/0?footer&cb=raptor.require('raptor.tracking.idmap.IdMap').handleResponse&_=1389042750376 HTTP/1.1
-Host: rover.ebay.com
-Connection: keep-alive
-Accept: */*
-vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
-Referer: http://www.ebay.com/
-$Accept-Encoding: gzip,deflate,sdch
-!Accept-Language: en-US,en;q=0.8
-»Cookie: dp1=bu1p/QEBfX0BAX19AQA**54ac4fb0^bl/US568d8330^; s=CgAD4ACBSzG2wNjk2NjFjMDIxNDMwYTYwNTg4MzY2NmM2ZmY4YTg0YWYBSgAXUsxtsDUyY2IxYzMwLjAuMS42LjcyLjIuMC4x+McflA**; nonsession=CgADLAAFSyyM4MQDKACBcMR2wNjk2NjFjMDIxNDMwYTYwNTg4MzY2NmM2ZmY4YTg0YWYBTAAXVKxPsDUyY2IxYzMwLjAuMS41LjcxLjEuMC4xFHjbgQ**; lucky9=8220089; npii=bcguid/696622661430a5f143a29242f058da4854ac4fb1^tguid/69661c021430a605883666c6ff8a84af54ac4fb1^; ebay=%5Esbf%3D%23100000%5E
-
-*Ï
-HTTP/1.1 200 OK
-Server: Apache-Coyote/1.1
-@RlogId: p4n%60rujfudlwc%3D9vjd7g66%60%2823e1-143696627b5-0x2c1
-"Cache-Control: private, no-cache
-Pragma: no-cache
-Content-Type: text/json
-Transfer-Encoding: chunked
-%Date: Mon, 06 Jan 2014 21:12:19 GMT
-Â
-134
-try{raptor.require('raptor.tracking.idmap.IdMap').handleResponse(["http://pixel.mathtag.com/event/img?mt_id=163108&mt_adid=107128&v1=&v2=&v3=&s1=&s2=&s3=","http://events12.fetchback.com/er/event?fbt=12&m=1389042739141&c=696622661430a5f143a29242f058da48&s=69661c021430a605883666c6ff8a84af",14400]);}catch(e){}
-0
-

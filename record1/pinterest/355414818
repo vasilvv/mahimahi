@@ -1,30 +1,0 @@
-PHTTP23.21.204.240"‚
-GET / HTTP/1.1
-Host: www.pinterest.com
-Connection: keep-alive
-TAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
-vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
-$Accept-Encoding: gzip,deflate,sdch
-!Accept-Language: en-US,en;q=0.8
-
-*ä
-HTTP/1.1 302 FOUND
-Accept-Ranges: bytes
-Age: 0
-(Content-Type: text/html; charset=utf-8
-%Date: Mon, 06 Jan 2014 21:13:38 GMT
-&Location: https://www.pinterest.com/
-Pinterest-Breed: CORGI
-(Pinterest-Generated-By: ngapp-d549ecf4
-Pinterest-Version: da919e8
-Server: nginx
-êSet-Cookie: csrftoken=5IsHdXLlSbmy7W9YYQwHzxhDQGuLrkwo; Domain=.pinterest.com; expires=Mon, 05-Jan-2015 21:13:38 GMT; Max-Age=31449600; Path=/
-îSet-Cookie: _pinterest_sess="eJwr1S4xiQxLzTMzzK5ILUlJMQ8Pdk1KySj1NDaxtY8vycxNtfUN8TXxD3E08M1Kr/B3tLVVK04tLs5MsfXMSjbwq3I09c0KNfRz96yIzArKjQyPNPHLSjf2rUo29XNJyY1y9y33y3Ks8ky3tQUAiiUjpg=="; Domain=.pinterest.com; expires=Thu, 01-Jan-2015 21:13:38 GMT; Max-Age=31103999; Path=/
-Vary: User-Agent, Cookie
-Via: 1.1 varnish
-X-Frame-Options: SAMEORIGIN
-X-Pinterest-RID: 652712759454
-X-Varnish: 1103925792
-Content-Length: 0
-Connection: keep-alive
-

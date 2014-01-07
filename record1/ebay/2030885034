@@ -1,25 +1,0 @@
-PHTTP98.139.225.42"¼
-^GET /cms/v1?esig=1~2d97df699a7e7052e00c7ee2bae6d00adbed961b&nwid=10000357068&sigv=1 HTTP/1.1
-Host: ads.yahoo.com
-Connection: keep-alive
-Accept: image/webp,*/*;q=0.8
-vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
-DReferer: http://m.xp1.ru4.com/meta?_o=179638&_t=cmcont&ssv_ptnr=pm
-$Accept-Encoding: gzip,deflate,sdch
-!Accept-Language: en-US,en;q=0.8
-
-*ã
-HTTP/1.1 302 Found
-%Date: Mon, 06 Jan 2014 21:12:18 GMT
-ÓP3P: policyref="http://p3p.yahoo.com/w3c/p3p.xml", CP="CAO DSP COR CUR ADM DEV TAI PSA PSD IVAi IVDi CONi TELo OTPi OUR DELi SAMi OTRi UNRi PUBi IND PHY ONL UNI PUR FIN COM NAV INT DEM CNT STA POL HEA PRE GOV"
-hSet-Cookie: B=e5eeo5t9cm71i&b=3&s=b1; expires=Thu, 07-Jan-2016 21:12:18 GMT; path=/; domain=.yahoo.com
-=Location: http://m.xp1.ru4.com/cx?_o=197240&look=xid&xid=E0
-Cache-Control: private
-)Content-Type: text/plain; charset=utf-8
-Age: 0
-Transfer-Encoding: chunked
-Connection: keep-alive
-Server: YTS/1.20.13
-
-0
-

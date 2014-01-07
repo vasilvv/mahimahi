@@ -1,19 +1,0 @@
-PHTTP205.251.243.158"õ
-öGET /1/batch/1/OE/ATVPDKIKX0DER:176-5796543-6109322:028ZGZGWJM545P04QY7V:www.amazon.com$cel=j:%7B%22k%22%3A%22mrg%22%2C%22n%22%3A%22page%20module%22%2C%22t%22%3A196%7D:196,j:%7B%22k%22%3A%22mso%22%2C%22n%22%3A%22page%20module%22%2C%22t%22%3A197%7D:197,j:%7B%22k%22%3A%22mrg%22%2C%22n%22%3A%22viewport%20module%22%2C%22t%22%3A197%7D:197,j:%7B%22k%22%3A%22mso%22%2C%22n%22%3A%22viewport%20module%22%2C%22t%22%3A197%7D:197,j:%7B%22k%22%3A%22mrg%22%2C%22n%22%3A%22features%20module%22%2C%22t%22%3A197%7D:197,j:%7B%22k%22%3A%22mso%22%2C%22n%22%3A%22features%20module%22%2C%22t%22%3A197%7D:197,j:%7B%22w%22%3A1920%2C%22aw%22%3A1920%2C%22h%22%3A1200%2C%22ah%22%3A1152%2C%22cd%22%3A24%2C%22pd%22%3A24%2C%22t%22%3A226%2C%22k%22%3A%22sci%22%7D:226,j:%7B%22w%22%3A1000%2C%22h%22%3A2329%2C%22t%22%3A227%2C%22k%22%3A%22doi%22%7D:227,j:%7B%22w%22%3A922%2C%22h%22%3A1036%2C%22x%22%3A0%2C%22y%22%3A0%2C%22t%22%3A227%2C%22k%22%3A%22vpi%22%7D:227&uedata=s:%2Fuedata%2Fnvp%2Funsticky%2F176-5796543-6109322%2FGateway%2Fntpoffrw%3Fld%26v%3D33%26id%3D028ZGZGWJM545P04QY7V%26m%3D1%26sc%3D028ZGZGWJM545P04QY7V%26ue%3D4%26ns%3D58%26af%3D60%26cf%3D60%26ne%3D63%26be%3D205%26xJ%3D269%26pc%3D395%26tc%3D-617%26na_%3D-617%26fe_%3D-605%26lk_%3D-604%26_lk%3D-603%26co_%3D-603%26_co%3D-603%26rq_%3D-603%26rs_%3D-5%26_rs%3D1%26dl_%3D0%26di_%3D205%26de_%3D205%26_de%3D226%26_dc%3D395%26ld_%3D395%26ty%3D0%26rc%3D0%26hob%3D3%26hoe%3D4%26ld%3D396%26t%3D1389042734434%26ctb%3D1%26csmtags%3Diss-on-time%7Cnonredirect%26viz%3Dhidden%3A4%7Cvisible%3A5:399 HTTP/1.1
-Host: fls-na.amazon.com
-Connection: keep-alive
-Accept: image/webp,*/*;q=0.8
-vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
-!Referer: http://www.amazon.com/
-$Accept-Encoding: gzip,deflate,sdch
-!Accept-Language: en-US,en;q=0.8
-¼Cookie: x-wl-uid=1wAyr4ne/grpEqpDc9uFSud7ZXMbqFb5q4pXAKbFYXRUHGUGvq9VD5mLroLFkkhacsNB9gs4FvRc=; ubid-main=188-3151900-7408965; session-id-time=2082787201l; session-id=176-5796543-6109322
-
-*Õ
-HTTP/1.1 204 No Content
-%Date: Mon, 06 Jan 2014 21:12:03 GMT
-8x-amzn-RequestId: 3063b250-7717-11e3-8e4f-2bde9e044f96
-"Vary: Accept-Encoding,User-Agent
-Content-Length: 0
-Content-Type: text/plain
-

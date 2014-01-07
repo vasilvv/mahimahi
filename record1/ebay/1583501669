@@ -1,22 +1,0 @@
-PHTTP66.135.211.36"£
-óGET /rtm?RtmCmd&a=json&l=@@__@@__@@&g=69661c021430a605883666c6ff8a84af&c=1H4sIAAAAAAAAAC1PwUrDQBS85yseeGnFbt7bl%2BxuI3sQhartnixUpCBpXMnSNFlKSqpfbwJeZhiGYWZuXNfCa9kCKqCsIFmQgpXbLlAXiCCRsiQyo3Xdb2iaMs0Fwuyd6B42ob1c4WrUp8rm8BBj43f%2BsA59mrMWrGC2ft66zR004ehh5atjN4fH%2BtydfMokUJDKUSiGt%2FK7PIf%2F1NhmlMUkkhyxCl%2BWzf6CiJREyZldjEyGrcRcM%2BtJkF0anFZKW%2Fd93BdpOgyD8IfyR1TdaXLIEgqjBS2VkPl0yWj7UQ9Puxd3m%2FwBiBBK8gUBAAA%3D&p=19511:19512:19513:19514&di=19511:19512:19513:19514&v=4&enc=UTF-8&bm=439522&ord=1389042748431&cg=1389042748431&cb=$.billboard.callback&callback=jQuery17009307332034222782_1389042748309&_=1389042748432 HTTP/1.1
-Host: srx.main.ebayrtm.com
-Connection: keep-alive
-Accept: */*
-vUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36
-Referer: http://www.ebay.com/
-$Accept-Encoding: gzip,deflate,sdch
-!Accept-Language: en-US,en;q=0.8
-
-*¶
- HTTP/1.1 302 Moved Temporarily
-Server: Apache-Coyote/1.1
-9RlogId: p4pphdlwc%3D9ve*t%28747%60l2s-14369661ffc-0x181
-Cache-Control: no-cache
-Expires: 0
-\P3P: CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"
-_Set-Cookie: PS=T.0; Domain=main.ebayrtm.com; Expires=Tue, 06-Jan-2015 21:12:17 GMT; Path=/rtm
-‘Location: http://srx.main.ebayrtm.com/rtm?RtmCmd&a=json&l=@@__@@__@@&g=69661c021430a605883666c6ff8a84af&c=1H4sIAAAAAAAAAC1PwUrDQBS85yseeGnFbt7bl%2BxuI3sQhartnixUpCBpXMnSNFlKSqpfbwJeZhiGYWZuXNfCa9kCKqCsIFmQgpXbLlAXiCCRsiQyo3Xdb2iaMs0Fwuyd6B42ob1c4WrUp8rm8BBj43f%2BsA59mrMWrGC2ft66zR004ehh5atjN4fH%2BtydfMokUJDKUSiGt%2FK7PIf%2F1NhmlMUkkhyxCl%2BWzf6CiJREyZldjEyGrcRcM%2BtJkF0anFZKW%2Fd93BdpOgyD8IfyR1TdaXLIEgqjBS2VkPl0yWj7UQ9Puxd3m%2FwBiBBK8gUBAAA%3D&p=19511:19512:19513:19514&di=19511:19512:19513:19514&v=4&enc=UTF-8&bm=439522&ord=1389042748431&cg=1389042748431&cb=$.billboard.callback&callback=jQuery17009307332034222782_1389042748309&_=1389042748432&r=yes
-Content-Length: 0
-%Date: Mon, 06 Jan 2014 21:12:16 GMT
-
