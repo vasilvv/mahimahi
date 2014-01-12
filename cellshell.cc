@@ -15,8 +15,13 @@ int main( int argc, char *argv[] )
 
         check_requirements( argc, argv );
 
-        if ( argc != 3 ) {
-            throw Exception( "Usage", string( argv[ 0 ] ) + " uplink downlink" );
+        if ( argc < 4 ) {
+            throw Exception( "Usage", string( argv[ 0 ] ) + " uplink downlink program_to_run" );
+        }
+
+        vector< string > program_to_run;
+        for ( int num_args = 3; num_args < argc; num_args++ ) {
+            program_to_run.emplace_back( string( argv[ num_args ] ) );
         }
 
         const std::string uplink_filename = argv[ 1 ];
@@ -25,7 +30,7 @@ int main( int argc, char *argv[] )
         PacketShell<CellQueue> cell_shell_app( "cell" );
 
         cell_shell_app.start_uplink( "[cell, up=" + uplink_filename + ", down=" + downlink_filename + "] ",
-                                     user_environment, uplink_filename );
+                                     program_to_run, user_environment, uplink_filename );
         cell_shell_app.start_downlink( downlink_filename );
         return cell_shell_app.wait_for_exit();
     } catch ( const Exception & e ) {
