@@ -9,7 +9,6 @@ using namespace std;
 int main( int argc, char *argv[] )
 {
     try {
-        cout << "CELLSHELL PID: " << getenv( "REPLAYSHELL_PID" ) << endl;
         string replay_pid;
         bool update_cwnd = false;
         if ( getenv( "REPLAYSHELL_PID" ) != nullptr ) {

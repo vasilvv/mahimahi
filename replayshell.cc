@@ -84,14 +84,11 @@ int main( int argc, char *argv[] )
         string user( getenv( "USER" ) );
         /* clear environment */
         SystemCall( "setenv", setenv( "REPLAYSHELL_PID", to_string(getpid()).c_str(), true ) );
-        SystemCall( "setenv", setenv( "CWND_SET", "false", true ) );
 
         char **user_environment = environ;
         environ = nullptr;
 
         check_requirements( argc, argv );
-
-        cout << "REPLAYSHELL ID: " << getpid() << endl;
 
 
         if ( argc < 3 ) {

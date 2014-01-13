@@ -10,8 +10,6 @@ int main( int argc, char *argv[] )
 {
     try {
         /* clear environment while running as root */
-        cout << "DELAYSHELL PID: " << getpid() << endl;
-        cout << "DELAY: REPLAY PID: " << getenv( "REPLAYSHELL_PID" ) << endl;
         string replay_pid;
         bool update_cwnd = false;
         if ( getenv( "REPLAYSHELL_PID" ) != nullptr ) {

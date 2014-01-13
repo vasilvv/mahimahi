@@ -46,7 +46,6 @@ void PacketShell<FerryType>::start_uplink( const string & shell_prefix,
                                            char ** const user_environment,
                                            Targs&&... Fargs )
 {
-    cout << "PACKETSHELL PID: " << getpid() << endl;
     /* g++ bug 55914 makes this hard before version 4.9 */
     auto ferry_maker = std::bind( []( Targs&&... Fargs ) { return FerryType( forward<Targs>( Fargs )... ); },
                                   forward<Targs>( Fargs )... );
@@ -77,12 +76,12 @@ void PacketShell<FerryType>::start_uplink( const string & shell_prefix,
        if ( shell_prefix.find( "delay" ) != string::npos and cwnd_set ) {
            in_network_namespace( atoi(replay_pid.c_str()), [&] () {
                         string egress_name( "delay-" + to_string( getpid() ) );
-                        run( { IP, "route", "change", "100.64.0.2", "dev", egress_name, "proto", "static", "initcwnd", to_string( cwnd ) } );
+                        run( { IP, "route", "change", ingress_addr().ip(), "dev", egress_name, "proto", "static", "initcwnd", to_string( cwnd ) } );
                 } );
        } else if (shell_prefix.find( "cell" ) != string::npos and cwnd_set ) {
            in_network_namespace( atoi(replay_pid.c_str()), [&] () {
                         string egress_name( "cell-" + to_string( getpid() ) );
-                        run( { IP, "route", "change", "100.64.0.2", "dev", egress_name, "proto", "static", "initcwnd", to_string( cwnd ) } );
+                        run( { IP, "route", "change", ingress_addr().ip(), "dev", egress_name, "proto", "static", "initcwnd", to_string( cwnd ) } );
                 } );
        }
 
