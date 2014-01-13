@@ -9,18 +9,29 @@ using namespace std;
 int main( int argc, char *argv[] )
 {
     try {
+        cout << "CELLSHELL PID: " << getenv( "REPLAYSHELL_PID" ) << endl;
+        string replay_pid;
+        bool update_cwnd = false;
+        if ( getenv( "REPLAYSHELL_PID" ) != nullptr ) {
+            replay_pid = string( getenv( "REPLAYSHELL_PID" ) );
+            unsetenv( "REPLAYSHELL_PID" );
+            update_cwnd = true;
+        }
+
         /* clear environment while running as root */
         char ** const user_environment = environ;
         environ = nullptr;
 
         check_requirements( argc, argv );
 
-        if ( argc < 4 ) {
-            throw Exception( "Usage", string( argv[ 0 ] ) + " uplink downlink program_to_run" );
+        if ( argc < 5 ) {
+            throw Exception( "Usage", string( argv[ 0 ] ) + " uplink downlink cwnd program_to_run" );
         }
 
+        const uint64_t cwnd = myatoi( argv[3] );
+
         vector< string > program_to_run;
-        for ( int num_args = 3; num_args < argc; num_args++ ) {
+        for ( int num_args = 4; num_args < argc; num_args++ ) {
             program_to_run.emplace_back( string( argv[ num_args ] ) );
         }
 
@@ -30,7 +41,7 @@ int main( int argc, char *argv[] )
         PacketShell<CellQueue> cell_shell_app( "cell" );
 
         cell_shell_app.start_uplink( "[cell, up=" + uplink_filename + ", down=" + downlink_filename + "] ",
-                                     program_to_run, user_environment, uplink_filename );
+                                     program_to_run, replay_pid, cwnd, update_cwnd, user_environment, uplink_filename );
         cell_shell_app.start_downlink( downlink_filename );
         return cell_shell_app.wait_for_exit();
     } catch ( const Exception & e ) {

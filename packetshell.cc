@@ -40,9 +40,13 @@ template <class FerryType>
 template <typename... Targs>
 void PacketShell<FerryType>::start_uplink( const string & shell_prefix,
                                            const vector< string > & command,
+                                           const string & replay_pid,
+                                           const uint64_t & cwnd,
+                                           bool cwnd_set,
                                            char ** const user_environment,
                                            Targs&&... Fargs )
 {
+    cout << "PACKETSHELL PID: " << getpid() << endl;
     /* g++ bug 55914 makes this hard before version 4.9 */
     auto ferry_maker = std::bind( []( Targs&&... Fargs ) { return FerryType( forward<Targs>( Fargs )... ); },
                                   forward<Targs>( Fargs )... );
@@ -70,6 +74,17 @@ void PacketShell<FerryType>::start_uplink( const string & shell_prefix,
             auto dns_inside = DNSProxy::maybe_proxy( nameserver_,
                                                      dns_outside_->udp_listener().local_addr(),
                                                      dns_outside_->tcp_listener().local_addr() );
+       if ( shell_prefix.find( "delay" ) != string::npos and cwnd_set ) {
+           in_network_namespace( atoi(replay_pid.c_str()), [&] () {
+                        string egress_name( "delay-" + to_string( getpid() ) );
+                        run( { IP, "route", "change", "100.64.0.2", "dev", egress_name, "proto", "static", "initcwnd", to_string( cwnd ) } );
+                } );
+       } else if (shell_prefix.find( "cell" ) != string::npos and cwnd_set ) {
+           in_network_namespace( atoi(replay_pid.c_str()), [&] () {
+                        string egress_name( "cell-" + to_string( getpid() ) );
+                        run( { IP, "route", "change", "100.64.0.2", "dev", egress_name, "proto", "static", "initcwnd", to_string( cwnd ) } );
+                } );
+       }
 
             /* Fork again after dropping root privileges */
             drop_privileges();

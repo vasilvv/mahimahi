@@ -35,6 +35,9 @@ public:
     template <typename... Targs>
     void start_uplink( const std::string & shell_prefix,
                        const std::vector< std::string > & command,
+                       const std::string & replay_pid,
+                       const uint64_t & cwnd,
+                       bool cwnd_set,
                        char ** const user_environment,
                        Targs&&... Fargs );
 
