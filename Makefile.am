@@ -63,6 +63,12 @@ nph_replayserver_cgi_LDADD = -lrt
 nph_replayserver_cgi_LDADD += protobufs/libhttprecordprotos.a -lm $(protobuf_LIBS)
 nph_replayserver_cgi_LDFLAGS = -pthread
 
+bin_PROGRAMS += makebulkreply
+makebulkreply_SOURCES = $(common_source) makebulkreply.cc
+makebulkreply_LDADD = -lrt
+makebulkreply_LDADD += protobufs/libhttprecordprotos.a -lm $(protobuf_LIBS)
+makebulkreply_LDFLAGS = -pthread
+
 install-exec-hook:
 	chown root $(DESTDIR)$(bindir)/delayshell
 	chmod u+s $(DESTDIR)$(bindir)/delayshell
