@@ -87,15 +87,14 @@ void HTTPProxy::handle_tcp( void )
                 /* responses from server go to response parser */
                 poller.add_action( Poller::Action( server_rw->fd(), Direction::In,
                                                    [&] () {
-                                                          cout << "READING FROM SERVER" << endl;
-                                                       //if ( from_destination.contiguous_space_to_push() > 0 ) {
-                                                           //string buffer = server_rw->read_amount( from_destination.contiguous_space_to_push() );
-                                                           string buffer = server_rw->read();
-                                                           cout << "READ: " << buffer << endl;
-                                                           //from_destination.push_string( buffer );
+                                                       if ( from_destination.contiguous_space_to_push() > 0 ) {
+                                                           string buffer = server_rw->read_amount( from_destination.contiguous_space_to_push() );
+                                                           //string buffer = server_rw->read();
+                                                           //cout << "READ: " << buffer << endl;
+                                                           from_destination.push_string( buffer );
                                                            response_parser.parse( buffer );
                                                            return ResultType::Continue;
-                                                   //    } else { return ResultType::Continue; }
+                                                       } else { return ResultType::Continue; }
                                                    },
                                                    [&] () { return not client_rw->fd().eof(); } ) );
 
@@ -131,9 +130,9 @@ void HTTPProxy::handle_tcp( void )
                 /* completed responses from server are serialized and sent to client */
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::Out,
                                                    [&] () {
-                                                       cout << "CLIENT WANTS STUFF" << endl;
-                                                       //if ( from_destination.non_empty() ) { cout << "CAN WRITE FROM SERVER" << endl; from_destination.pop( client_rw->fd() ); }
-                                                       client_rw->write( response_parser.front().str() );
+                                                       //cout << "CLIENT WANTS STUFF" << endl;
+                                                       if ( from_destination.non_empty() ) { from_destination.pop( client_rw->fd() ); }
+                                                       //client_rw->write( response_parser.front().str() );
                                                        reqres_to_protobuf( current_pair, response_parser.front() );
                                                        response_parser.pop();
                                                        return ResultType::Continue;
