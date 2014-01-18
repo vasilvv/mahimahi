@@ -81,58 +81,48 @@ void HTTPProxy::handle_tcp( void )
                                                                  static_cast<decltype( client_rw )>( new SecureSocket( move( client ), SERVER ) ) :
                                                                  static_cast<decltype( client_rw )>( new Socket( move( client ) ) );
                 /* Make bytestream_queue for browser->server and server->browser */
-                ByteStreamQueue from_client( ezio::read_chunk_size ); ByteStreamQueue from_destination( ezio::read_chunk_size );
+                ByteStreamQueue from_client( 10 ); ByteStreamQueue from_destination(10 );
 
                 /* poll on original connect socket and new connection socket to ferry packets */
                 /* responses from server go to response parser */
                 poller.add_action( Poller::Action( server_rw->fd(), Direction::In,
                                                    [&] () {
-                                                       if ( from_destination.contiguous_space_to_push() > 0 ) {
-                                                           string buffer = server_rw->read_amount( from_destination.contiguous_space_to_push() );
-                                                           //string buffer = server_rw->read();
-                                                           //cout << "READ: " << buffer << endl;
-                                                           from_destination.push_string( buffer );
-                                                           response_parser.parse( buffer );
-                                                           return ResultType::Continue;
-                                                       } else { return ResultType::Continue; }
+                                                       string buffer = server_rw->read();
+                                                       response_parser.parse( buffer );
+                                                       return ResultType::Continue;
                                                    },
                                                    [&] () { return not client_rw->fd().eof(); } ) );
 
                 /* requests from client go to request parser */
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::In,
                                                    [&] () {
-                                                       if ( from_client.contiguous_space_to_push() > 0 ) {
-                                                           string buffer = client_rw->read_amount( from_client.contiguous_space_to_push() );
-                                                           cout << "READ: " << buffer << endl;
-                                                           //string buffer = client_rw->read();
-                                                           from_client.push_string( buffer );
-                                                           request_parser.parse( buffer );
-                                                           return ResultType::Continue;
-                                                       } else { return ResultType::Continue; }
+                                                       string buffer = client_rw->read_amount( from_client.contiguous_space_to_push() );
+                                                       from_client.push_string( buffer );
+                                                       request_parser.parse( buffer );
+                                                       return ResultType::Continue;
                                                    },
-                                                   [&] () { return not server_rw->fd().eof(); } ) );
+                                                   [&] () { return ( not server_rw->fd().eof() and from_client.space_available() ); } ) );
 
                 /* completed requests from client are serialized and sent to server */
                 poller.add_action( Poller::Action( server_rw->fd(), Direction::Out,
                                                    [&] () {
                                                        from_client.pop( server_rw->fd() );
-                                                       //server_rw->write( request_parser.front().str() );
-                                                       response_parser.new_request_arrived( request_parser.front() );
+                                                       if ( not request_parser.empty() ) {
+                                                           response_parser.new_request_arrived( request_parser.front() );
 
-                                                       /* add request to current request/response pair */
-                                                       current_pair.mutable_req()->CopyFrom( request_parser.front().toprotobuf() );
+                                                           /* add request to current request/response pair */
+                                                           current_pair.mutable_req()->CopyFrom( request_parser.front().toprotobuf() );
 
-                                                       request_parser.pop();
+                                                           request_parser.pop();
+                                                       }
                                                        return ResultType::Continue;
                                                    },
-                                                   [&] () { return not request_parser.empty(); } ) );
+                                                   [&] () { return from_client.non_empty(); } ) );
 
                 /* completed responses from server are serialized and sent to client */
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::Out,
                                                    [&] () {
-                                                       //cout << "CLIENT WANTS STUFF" << endl;
-                                                       if ( from_destination.non_empty() ) { from_destination.pop( client_rw->fd() ); }
-                                                       //client_rw->write( response_parser.front().str() );
+                                                       client_rw->write( response_parser.front().str() );
                                                        reqres_to_protobuf( current_pair, response_parser.front() );
                                                        response_parser.pop();
                                                        return ResultType::Continue;

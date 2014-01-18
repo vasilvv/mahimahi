@@ -66,7 +66,7 @@ size_t ByteStreamQueue::contiguous_space_to_push( void )
     if ( next_byte_to_push + contiguous_space_to_push >= buffer_.size() ) {
         contiguous_space_to_push = buffer_.size() - next_byte_to_push;
     }
-    //assert( contiguous_space_to_push > 0 );
+    assert( contiguous_space_to_push > 0 );
     return contiguous_space_to_push;
 }
 
@@ -85,10 +85,10 @@ ByteStreamQueue::Result ByteStreamQueue::push_string( const string & new_chunk )
 
     next_byte_to_push += new_chunk.size();
     assert( next_byte_to_push <= buffer_.size() );
+
     if ( next_byte_to_push == buffer_.size() ) {
         next_byte_to_push = 0;
     }
-
     assert( non_empty() );
     return Result::Success;
 }
@@ -103,19 +103,15 @@ void ByteStreamQueue::pop( FileDescriptor & fd )
     if ( next_byte_to_pop + contiguous_space_to_pop >= buffer_.size() ) {
         contiguous_space_to_pop = buffer_.size() - next_byte_to_pop;
     }
-    cout << "contiguous space to pop: " << contiguous_space_to_pop << endl;
     
     decltype(buffer_)::const_iterator pop_iterator = buffer_.begin() + next_byte_to_pop;
     auto end_of_pop = pop_iterator + contiguous_space_to_pop;
 
     assert( end_of_pop >= pop_iterator );
 
-    cout << "NEXT BYTE TO POP BEFORE: " << next_byte_to_pop << endl;
-
     pop_iterator = fd.write_some( pop_iterator, end_of_pop );
 
     next_byte_to_pop = pop_iterator - buffer_.begin();
-    cout << "NEXT BYTE TO POP AFTER: " << next_byte_to_pop << endl;
     assert( next_byte_to_pop <= buffer_.size() );
     if ( next_byte_to_pop == buffer_.size() ) {
         next_byte_to_pop = 0;
