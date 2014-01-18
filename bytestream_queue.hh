@@ -29,6 +29,11 @@ public:
 
     const std::function<bool(void)> space_available;
     const std::function<bool(void)> non_empty;
+
+    size_t contiguous_space_to_push( void );
+    Result push_string( const std::string & new_chunk );
+
+
 };
 
 bool eof( const ByteStreamQueue::Result & r );

@@ -101,6 +101,28 @@ string SecureSocket::read( void )
     }
 }
 
+string SecureSocket::read_amount( const size_t amount_to_read )
+{
+    /* SSL record max size is 16kB */
+    const size_t SSL_max_record_length = 16384;
+
+    char buffer[ SSL_max_record_length ];
+
+    ssize_t bytes_read = SSL_read( ssl_connection, &buffer, amount_to_read );
+
+    /* Make sure that we really are reading from the underlying fd */
+    assert( 0 == SSL_pending( ssl_connection ) );
+
+    if ( bytes_read == 0 ) {
+        return string(); /* EOF */
+    } else if ( bytes_read < 0 ) {
+        throw Exception( "SSL_read", ERR_error_string( SSL_get_error( ssl_connection, bytes_read ), nullptr ) );
+    } else {
+        /* success */
+        return string( buffer, bytes_read );
+    }
+}
+
 void SecureSocket::write(const string & message )
 {
     /* SSL_write returns with success if complete contents of message are written */

@@ -39,6 +39,8 @@ public:
 
     std::string read( void ) override;
 
+    std::string read_amount( const size_t amount_to_read ) override;
+
     void write( const std::string & message ) override;
 
     FileDescriptor & fd( void ) override { return underlying_socket.fd(); }
