@@ -81,19 +81,23 @@ void HTTPProxy::handle_tcp( void )
                                                                  static_cast<decltype( client_rw )>( new SecureSocket( move( client ), SERVER ) ) :
                                                                  static_cast<decltype( client_rw )>( new Socket( move( client ) ) );
                 /* Make bytestream_queue for browser->server and server->browser */
-                ByteStreamQueue from_client( ezio::read_chunk_size ); ByteStreamQueue from_destination( 10 );
+                ByteStreamQueue from_client( ezio::read_chunk_size ); ByteStreamQueue from_destination( ezio::read_chunk_size );
 
                 /* poll on original connect socket and new connection socket to ferry packets */
-                /* responses from server go to response parser */
+                /* responses from server go to response parser and bytestreamqueue */
                 poller.add_action( Poller::Action( server_rw->fd(), Direction::In,
                                                    [&] () {
-                                                       string buffer = server_rw->read();
+                                                       if ( dst_port == 443 ) { /* SSL_read decrypts when full record -> if ssl, only read if we have full record size available to push */
+                                                           if ( from_destination.contiguous_space_to_push() < 16384 ) { return ResultType::Continue; }
+                                                       }
+                                                       string buffer = server_rw->read_amount( from_destination.contiguous_space_to_push() );
+                                                       from_destination.push_string( buffer );
                                                        response_parser.parse( buffer );
                                                        return ResultType::Continue;
                                                    },
-                                                   [&] () { return not client_rw->fd().eof(); } ) );
+                                                   [&] () { return ( not client_rw->fd().eof() and from_destination.space_available() ); } ) );
 
-                /* requests from client go to request parser */
+                /* requests from client go to request parser and bytestreamqueue */
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::In,
                                                    [&] () {
                                                        if ( dst_port == 443 ) { /* SSL_read decrypts when full record -> if ssl, only read if we have full record size available to push */
@@ -106,7 +110,7 @@ void HTTPProxy::handle_tcp( void )
                                                    },
                                                    [&] () { return ( not server_rw->fd().eof() and from_client.space_available() ); } ) );
 
-                /* completed requests from client are serialized and sent to server */
+                /* completed requests from client are serialized and bytestreamqueue contents are sent to server */
                 poller.add_action( Poller::Action( server_rw->fd(), Direction::Out,
                                                    [&] () {
                                                        if ( dst_port == 443 ) {
@@ -126,15 +130,21 @@ void HTTPProxy::handle_tcp( void )
                                                    },
                                                    [&] () { return from_client.non_empty(); } ) );
 
-                /* completed responses from server are serialized and sent to client */
+                /* completed responses from server are serialized and bytestreamqueue contents are sent to client */
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::Out,
                                                    [&] () {
-                                                       client_rw->write( response_parser.front().str() );
-                                                       reqres_to_protobuf( current_pair, response_parser.front() );
-                                                       response_parser.pop();
+                                                       if ( dst_port == 443 ) {
+                                                           from_destination.pop_ssl( move( client_rw ) );
+                                                       } else {
+                                                           from_destination.pop( client_rw->fd() );
+                                                       }
+                                                       if ( not response_parser.empty() ) {
+                                                           reqres_to_protobuf( current_pair, response_parser.front() );
+                                                           response_parser.pop();
+                                                       }
                                                        return ResultType::Continue;
                                                    },
-                                                   [&] () { return not response_parser.empty(); } ) );
+                                                   [&] () { return from_destination.non_empty(); } ) );
 
                 while( true ) {
                     auto poll_result = poller.poll( 60000 );

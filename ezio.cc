@@ -26,8 +26,6 @@ string::const_iterator write_some( const int fd,
 
     ssize_t bytes_written = write( fd, &*begin, end - begin );
 
-    cout << "BYTES WRITTEN: " << bytes_written << endl;
-
     if ( bytes_written < 0 ) {
         throw Exception( "write" );
     } else if ( bytes_written == 0 ) {
@@ -44,8 +42,6 @@ string readall( const int fd, const size_t limit )
     assert( limit > 0 );
 
     ssize_t bytes_read = read( fd, &buffer, min( ezio::read_chunk_size, limit ) );
-
-    cout << "READ: " << bytes_read << endl;
 
     if ( bytes_read == 0 ) {
         /* end of file = client has closed their side of connection */
