@@ -6,8 +6,10 @@
 #include <queue>
 #include <string>
 #include <functional>
+#include <memory>
 
 #include "file_descriptor.hh"
+#include "read_write_interface.hh"
 
 class ByteStreamQueue
 {
@@ -33,6 +35,7 @@ public:
     size_t contiguous_space_to_push( void );
     Result push_string( const std::string & new_chunk );
 
+    void pop_ssl( std::unique_ptr<ReadWriteInterface> && rw );
 
 };
 

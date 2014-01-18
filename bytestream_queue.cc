@@ -118,6 +118,31 @@ void ByteStreamQueue::pop( FileDescriptor & fd )
     }
 }
 
+void ByteStreamQueue::pop_ssl( unique_ptr<ReadWriteInterface> && rw )
+{
+    /* will need to handle case if it's possible that more than
+       one action might pop from this queue */
+    assert( non_empty() );
+
+    size_t contiguous_space_to_pop = available_to_pop();
+    if ( next_byte_to_pop + contiguous_space_to_pop >= buffer_.size() ) {
+        contiguous_space_to_pop = buffer_.size() - next_byte_to_pop;
+    }
+
+    decltype(buffer_)::const_iterator pop_iterator = buffer_.begin() + next_byte_to_pop;
+    auto end_of_pop = pop_iterator + contiguous_space_to_pop;
+
+    assert( end_of_pop >= pop_iterator );
+
+    pop_iterator = rw->write_some( pop_iterator, end_of_pop );
+
+    next_byte_to_pop = pop_iterator - buffer_.begin();
+    assert( next_byte_to_pop <= buffer_.size() );
+    if ( next_byte_to_pop == buffer_.size() ) {
+        next_byte_to_pop = 0;
+    }
+}
+
 bool eof( const ByteStreamQueue::Result & r )
 {
     return r == ByteStreamQueue::Result::EndOfFile;

@@ -81,7 +81,7 @@ void HTTPProxy::handle_tcp( void )
                                                                  static_cast<decltype( client_rw )>( new SecureSocket( move( client ), SERVER ) ) :
                                                                  static_cast<decltype( client_rw )>( new Socket( move( client ) ) );
                 /* Make bytestream_queue for browser->server and server->browser */
-                ByteStreamQueue from_client( 10 ); ByteStreamQueue from_destination(10 );
+                ByteStreamQueue from_client( ezio::read_chunk_size ); ByteStreamQueue from_destination( 10 );
 
                 /* poll on original connect socket and new connection socket to ferry packets */
                 /* responses from server go to response parser */
@@ -96,6 +96,9 @@ void HTTPProxy::handle_tcp( void )
                 /* requests from client go to request parser */
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::In,
                                                    [&] () {
+                                                       if ( dst_port == 443 ) { /* SSL_read decrypts when full record -> if ssl, only read if we have full record size available to push */
+                                                           if ( from_client.contiguous_space_to_push() < 16384 ) { return ResultType::Continue; }
+                                                       }
                                                        string buffer = client_rw->read_amount( from_client.contiguous_space_to_push() );
                                                        from_client.push_string( buffer );
                                                        request_parser.parse( buffer );
@@ -106,7 +109,11 @@ void HTTPProxy::handle_tcp( void )
                 /* completed requests from client are serialized and sent to server */
                 poller.add_action( Poller::Action( server_rw->fd(), Direction::Out,
                                                    [&] () {
-                                                       from_client.pop( server_rw->fd() );
+                                                       if ( dst_port == 443 ) {
+                                                           from_client.pop_ssl( move( server_rw ) );
+                                                       } else {
+                                                           from_client.pop( server_rw->fd() );
+                                                       }
                                                        if ( not request_parser.empty() ) {
                                                            response_parser.new_request_arrived( request_parser.front() );
 

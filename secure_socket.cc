@@ -123,6 +123,22 @@ string SecureSocket::read_amount( const size_t amount_to_read )
     }
 }
 
+string::const_iterator SecureSocket::write_some( const string::const_iterator & begin,
+                                                 const string::const_iterator & end )
+{
+    assert( end > begin );
+
+    ssize_t bytes_written = SSL_write( ssl_connection, &*begin, end - begin );
+
+    if ( bytes_written < 0 ) {
+        throw Exception( "write" );
+    } else if ( bytes_written == 0 ) {
+        throw Exception( "write returned 0" );
+    }
+
+    return begin + bytes_written;
+}
+
 void SecureSocket::write(const string & message )
 {
     /* SSL_write returns with success if complete contents of message are written */
