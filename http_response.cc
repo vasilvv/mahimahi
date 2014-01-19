@@ -7,6 +7,7 @@
 #include "mime_type.hh"
 
 #include "chunked_parser.hh"
+#include "bulk_parser.hh"
 
 using namespace std;
 
@@ -57,6 +58,14 @@ void HTTPResponse::calculate_expected_body_size( void )
         /* Rule 4 */
         set_expected_body_size( false );
         throw Exception( "HTTPResponse", "unsupported multipart/byteranges without Content-Length" );
+    } else if ( has_header( "Content-Type" )
+                and equivalent_strings( get_header_value( "Content-Type" ), "application/x-bulkreply" ) ) {
+
+        /* Bulk Response from Remote Proxy */
+        set_expected_body_size( false );
+
+        /* Create body_parser_ for bulk response */
+        body_parser_ = unique_ptr< BodyParser >( new BulkBodyParser( ) );
     } else {
         /* Rule 5 */
         set_expected_body_size( false );
