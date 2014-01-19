@@ -15,16 +15,15 @@ class HTTPProxy
 {
 private:
     Socket listener_socket_;
-    /* folder to store recorded http content in */
-    std::string record_folder_;
 
     /* Pick a random file name and store reqrespair as a serialized string */
     void reqres_to_protobuf( HTTP_Record::reqrespair & current_pair, const HTTPResponse & response );
 
+    std::vector< HTTP_Record::reqrespair > stored_pairs_;
 public:
     static const std::string client_cert;
     static const std::string server_cert;
-    HTTPProxy( const Address & listener_addr, const std::string & record_folder );
+    HTTPProxy( const Address & listener_addr );
     Socket & tcp_listener( void ) { return listener_socket_; }
 
     void handle_tcp( void );

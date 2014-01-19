@@ -27,9 +27,9 @@
 using namespace std;
 using namespace PollerShortNames;
 
-HTTPProxy::HTTPProxy( const Address & listener_addr, const string & record_folder )
+HTTPProxy::HTTPProxy( const Address & listener_addr )
     : listener_socket_( TCP ),
-      record_folder_( record_folder)
+      stored_pairs_()
 {
     listener_socket_.bind( listener_addr );
     listener_socket_.listen();
@@ -165,23 +165,10 @@ void HTTPProxy::handle_tcp( void )
 
 void HTTPProxy::reqres_to_protobuf( HTTP_Record::reqrespair & current_pair, const HTTPResponse & response )
 {
-    /* output string for current request/response pair */
-    string outputmessage;
-
-    /* Use random number generator to create output filename (number between 0 and 99999) */
-    string filename = record_folder_ + to_string( random() );
-
-    /* FileDescriptor for output file to write current request/response pair protobuf (user has all permissions) */
-    FileDescriptor messages( SystemCall( "open request/response protobuf " + filename + "\n", open(filename.c_str(), O_WRONLY | O_CREAT, 00700 ) ) );
-
     /* if request is present in current request/response pair, add response and write to file */
     if ( current_pair.has_req() ) {
         current_pair.mutable_res()->CopyFrom( response.toprotobuf() );
-        if ( current_pair.SerializeToString( &outputmessage ) ) {
-            messages.write( outputmessage );
-        } else {
-            throw Exception( "Protobuf", "Unable to serialize protobuf to string" );
-        }
+        stored_pairs_.emplace_back( current_pair );
     } else {
         throw Exception( "Protobuf", "Response ready without Request" );
     }
