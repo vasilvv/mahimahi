@@ -46,7 +46,7 @@ HTTPProxy::HTTPProxy( const Address & listener_addr )
     SSL_load_error_strings();
 }
 
-void HTTPProxy::handle_tcp( void )
+void HTTPProxy::handle_tcp( Archive & archive )
 {
     thread newthread( [&] ( Socket client ) {
             try {
@@ -92,7 +92,7 @@ void HTTPProxy::handle_tcp( void )
                                                        }
                                                        string buffer = server_rw->read_amount( from_destination.contiguous_space_to_push() );
                                                        from_destination.push_string( buffer );
-                                                       response_parser.parse( buffer );
+                                                       response_parser.parse( buffer, archive );
                                                        return ResultType::Continue;
                                                    },
                                                    [&] () { return ( not client_rw->fd().eof() and from_destination.space_available() ); } ) );

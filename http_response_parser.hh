@@ -6,6 +6,7 @@
 #include "http_message_sequence.hh"
 #include "http_response.hh"
 #include "http_request.hh"
+#include "archive.hh"
 
 class HTTPResponseParser : public HTTPMessageSequence<HTTPResponse>
 {
@@ -17,6 +18,10 @@ private:
 
 public:
     void new_request_arrived( const HTTPRequest & request );
+
+    void parse( const std::string & buf, Archive & archive );
+
+    bool parsing_step( void );
 };
 
 #endif /* HTTP_RESPONSE_PARSER_HH */

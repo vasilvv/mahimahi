@@ -19,6 +19,8 @@ private:
 
 public:
     bool is_head( void ) const;
+
+    size_t read_in_body( const std::string & str );
 };
 
 #endif /* HTTP_REQUEST_HH */

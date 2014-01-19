@@ -55,7 +55,6 @@ public:
     void set_first_line( const std::string & str );
     void add_header( const std::string & str );
     void done_with_headers( void );
-    size_t read_in_body( const std::string & str );
     void eof( void );
 
     /* getters */

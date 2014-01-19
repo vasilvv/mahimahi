@@ -7,6 +7,7 @@
 
 #include "http_message.hh"
 #include "body_parser.hh"
+#include "archive.hh"
 
 class HTTPResponse : public HTTPMessage
 {
@@ -24,6 +25,8 @@ private:
 
 public:
     void set_request_was_head( void );
+
+    size_t read_in_body( const std::string & str, Archive & archive );
 };
 
 #endif /* HTTP_RESPONSE_HH */
