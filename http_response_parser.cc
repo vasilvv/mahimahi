@@ -78,7 +78,9 @@ bool HTTPResponseParser::parsing_step( Archive & archive )
         return message_in_progress_.state() == COMPLETE;
 
     case COMPLETE:
-        complete_messages_.emplace( std::move( message_in_progress_ ) );
+        if ( not message_in_progress_.is_bulk() ) { /* not a bulk response so we can store it */
+            complete_messages_.emplace( std::move( message_in_progress_ ) );
+        }
         message_in_progress_ = HTTPResponse();
         return true;
     }

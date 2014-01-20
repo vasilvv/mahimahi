@@ -23,10 +23,14 @@ private:
 
     std::unique_ptr< BodyParser > body_parser_ { nullptr };
 
+    bool is_bulk_ { false };
+
 public:
     void set_request_was_head( void );
 
     size_t read_in_body( const std::string & str, Archive & archive );
+
+    bool is_bulk( void ) { return is_bulk_; }
 };
 
 #endif /* HTTP_RESPONSE_HH */

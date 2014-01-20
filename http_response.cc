@@ -66,6 +66,9 @@ void HTTPResponse::calculate_expected_body_size( void )
 
         /* Create body_parser_ for bulk response */
         body_parser_ = unique_ptr< BodyParser >( new BulkBodyParser( ) );
+
+        /* set response to bulk so we don't store it in completed responses */
+        is_bulk_ = true;
     } else {
         /* Rule 5 */
         set_expected_body_size( false );
