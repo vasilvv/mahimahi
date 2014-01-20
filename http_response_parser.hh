@@ -21,7 +21,7 @@ public:
 
     void parse( const std::string & buf, Archive & archive );
 
-    bool parsing_step( void );
+    bool parsing_step( Archive & archive );
 };
 
 #endif /* HTTP_RESPONSE_PARSER_HH */

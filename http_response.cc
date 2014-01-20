@@ -93,11 +93,11 @@ size_t HTTPResponse::read_in_body( const std::string & str, Archive & archive )
         return amount_to_append;
     } else {
         /* body size not known in advance */
-        return read_in_complex_body( str );
+        return read_in_complex_body( str, archive );
     }
 }
 
-size_t HTTPResponse::read_in_complex_body( const std::string & str )
+size_t HTTPResponse::read_in_complex_body( const std::string & str, Archive & archive )
 {
     assert( state_ == BODY_PENDING );
     assert( body_parser_ );

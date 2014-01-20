@@ -18,7 +18,7 @@ private:
 
     /* required methods */
     void calculate_expected_body_size( void ) override;
-    size_t read_in_complex_body( const std::string & str ) override;
+    size_t read_in_complex_body( const std::string & str, Archive & archive );
     bool eof_in_body( void ) override;
 
     std::unique_ptr< BodyParser > body_parser_ { nullptr };

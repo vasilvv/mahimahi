@@ -27,7 +27,7 @@ private:
     virtual void calculate_expected_body_size( void ) = 0;
 
     /* bodies with size not known in advance must be handled by subclass */
-    virtual size_t read_in_complex_body( const std::string & str ) = 0;
+    //virtual size_t read_in_complex_body( const std::string & str ) = 0;
 
     /* does message become complete upon EOF in body? */
     virtual bool eof_in_body( void ) = 0;

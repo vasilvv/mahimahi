@@ -38,10 +38,10 @@ void HTTPResponseParser::parse( const std::string & buf, Archive & archive )
     buffer_.append( buf );
 
     /* parse as much as we can */
-    while ( parsing_step() ) {}
+    while ( parsing_step( archive ) ) {}
 }
 
-bool HTTPResponseParser::parsing_step( void )
+bool HTTPResponseParser::parsing_step( Archive & archive )
 {
     switch ( message_in_progress_.state() ) {
     case FIRST_LINE_PENDING:
