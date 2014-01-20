@@ -6,7 +6,7 @@
 
 using namespace std;
 
-string::size_type BulkBodyParser::read( const std::string & input_buffer )
+string::size_type BulkBodyParser::read( const std::string & input_buffer, Archive & archive )
 {
     parser_buffer_ += input_buffer;
 
@@ -53,10 +53,11 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer )
                 if ( requests_left_ > 0 ) { /* this is a request so store protobuf in pending */
                     HTTP_Record::http_message request;
                     request.ParseFromString( parser_buffer_ );
-                    pending_.emplace_back( make_pair( request, "pending" ) );
+                    archive.add_request( request );
                     requests_left_ = requests_left_ - 1;
                 } else { /* this is a response so store string in pending_ */
-                    pending_.at( pending_.size() - responses_left_ ).second = parser_buffer_.substr( 0, current_message_size_ );
+                    size_t pos = archive.num_of_requests() - responses_left_;
+                    archive.add_response( parser_buffer_.substr( 0, current_message_size_ ), pos );
                     responses_left_ = responses_left_ - 1;
                 }
                 acked_so_far_ = acked_so_far_ + current_message_size_;

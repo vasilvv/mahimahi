@@ -18,14 +18,12 @@ private:
 
     uint32_t current_message_size_ {0};
 
-    std::vector< std::pair< HTTP_Record::http_message, std::string > > pending_ {};
-
     std::string parser_buffer_ {""};
     std::string::size_type acked_so_far_ {0};
     enum {RESPONSE_SIZE, MESSAGE_HDR, MESSAGE} state_ {RESPONSE_SIZE};
 
 public:
-    std::string::size_type read( const std::string & ) override;
+    std::string::size_type read( const std::string &, Archive & archive ) override;
 
     /* Follow item 2, Section 4.4 of RFC 2616 */
     bool eof( void ) override { return true; };

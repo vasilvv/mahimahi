@@ -28,7 +28,7 @@ uint32_t ChunkedBodyParser::get_chunk_size( const string & chunk_hdr ) const
     return myatoi( hex_string, 16 );
 }
 
-string::size_type ChunkedBodyParser::read( const std::string & input_buffer )
+string::size_type ChunkedBodyParser::read( const std::string & input_buffer,  __attribute__( ( unused ) ) Archive & archive )
 {
     parser_buffer_ += input_buffer;
 

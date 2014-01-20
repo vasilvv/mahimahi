@@ -35,6 +35,8 @@ public:
 
     /* Return the corresponding response to the stored request (caller should first call have_response) */ 
     std::string corresponding_response( const HTTP_Record::http_message & new_req );
+
+    size_t num_of_requests( void ) { return pending_.size(); }
 };
 
 #endif

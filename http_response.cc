@@ -105,7 +105,7 @@ size_t HTTPResponse::read_in_complex_body( const std::string & str, Archive & ar
     assert( state_ == BODY_PENDING );
     assert( body_parser_ );
 
-    auto amount_parsed = body_parser_->read( str );
+    auto amount_parsed = body_parser_->read( str, archive );
     if ( amount_parsed == std::string::npos ) {
         /* all of it belongs to the body */
         body_.append( str );
