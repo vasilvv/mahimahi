@@ -112,7 +112,15 @@ void HTTPProxy::handle_tcp( Archive & archive )
                                                        /* check if request is stored: if pending->wait, if response present->send to client, if neither->send request to server */
                                                        HTTP_Record::http_message complete_request = request_parser.front().toprotobuf();
                                                        if ( archive.request_pending( complete_request ) ) {
-                                                           /* TODO wait for matching response to be filled into archive */
+                                                           while ( archive.request_pending( complete_request ) ) { /* wait until we have the response filled in */
+                                                               sleep( 1 );
+                                                           }
+                                                           if ( from_destination.contiguous_space_to_push() >= archive.corresponding_response( complete_request ).size() ) { /* we have space to add response */
+                                                               from_destination.push_string( request_parser.front().str() );
+                                                           } else {
+                                                               return ResultType::Continue;
+                                                           }
+
                                                        } else if ( archive.have_response( complete_request ) ) { /* corresponding response already stored- send to client */
                                                            if ( from_destination.contiguous_space_to_push() >= archive.corresponding_response( complete_request ).size() ) { /* we have space to add response */
                                                                from_destination.push_string( request_parser.front().str() );
