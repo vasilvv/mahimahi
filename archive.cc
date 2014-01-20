@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
+#include <algorithm>
 
 #include "archive.hh"
 #include "exception.hh"
