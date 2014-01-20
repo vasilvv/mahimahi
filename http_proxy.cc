@@ -109,11 +109,22 @@ void HTTPProxy::handle_tcp( Archive & archive )
                 /* completed requests from client are serialized and sent to server */
                 poller.add_action( Poller::Action( server_rw->fd(), Direction::Out,
                                                    [&] () {
-                                                       server_rw->write( request_parser.front().str() );
-                                                       response_parser.new_request_arrived( request_parser.front() );
-
-                                                       /* add request to current request/response pair */
-                                                       current_pair.mutable_req()->CopyFrom( request_parser.front().toprotobuf() );
+                                                       /* check if request is stored: if pending->wait, if response present->send to client, if neither->send request to server */
+                                                       HTTP_Record::http_message complete_request = request_parser.front().toprotobuf();
+                                                       if ( archive.request_pending( complete_request ) ) {
+                                                           /* TODO wait for matching response to be filled into archive */
+                                                       } else if ( archive.have_response( complete_request ) ) { /* corresponding response already stored- send to client */
+                                                           if ( from_destination.contiguous_space_to_push() >= archive.corresponding_response( complete_request ).size() ) { /* we have space to add response */
+                                                               from_destination.push_string( request_parser.front().str() );
+                                                           } else {
+                                                               return ResultType::Continue;
+                                                           }
+                                                       } else { /* request not listed in archive- send request to server */
+                                                           server_rw->write( request_parser.front().str() );
+                                                           response_parser.new_request_arrived( request_parser.front() );
+                                                           /* add request to current request/response pair */
+                                                           current_pair.mutable_req()->CopyFrom( request_parser.front().toprotobuf() );
+                                                       }
 
                                                        request_parser.pop();
                                                        return ResultType::Continue;
