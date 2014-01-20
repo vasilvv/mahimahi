@@ -28,7 +28,7 @@ public:
     void add_response( const std::string & response, const size_t position );
 
     /* Do we have a matching request that is pending? */
-    bool is_request_pending( const HTTP_Record::http_message & new_req );
+    bool request_pending( const HTTP_Record::http_message & new_req );
 
     /* Do we have a stored response for this request? */
     bool have_response( const HTTP_Record::http_message & new_req );

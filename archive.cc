@@ -160,7 +160,7 @@ void Archive::add_response( const string & response, const size_t position )
     pending_.at( position ).second = response;
 }
 
-bool Archive::is_request_pending( const HTTP_Record::http_message & new_req )
+bool Archive::request_pending( const HTTP_Record::http_message & new_req )
 {
     if ( get_corresponding_response( new_req ) == "pending" ) {
         return true;
