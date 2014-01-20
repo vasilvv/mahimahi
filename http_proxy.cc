@@ -81,7 +81,7 @@ void HTTPProxy::handle_tcp( Archive & archive )
                                                                  static_cast<decltype( client_rw )>( new SecureSocket( move( client ), SERVER ) ) :
                                                                  static_cast<decltype( client_rw )>( new Socket( move( client ) ) );
                 /* Make bytestream_queue for browser->server and server->browser */
-                ByteStreamQueue from_client( ezio::read_chunk_size ); ByteStreamQueue from_destination( ezio::read_chunk_size );
+                ByteStreamQueue from_destination( ezio::read_chunk_size );
 
                 /* poll on original connect socket and new connection socket to ferry packets */
                 /* responses from server go to response parser and bytestreamqueue */
@@ -97,38 +97,28 @@ void HTTPProxy::handle_tcp( Archive & archive )
                                                    },
                                                    [&] () { return ( not client_rw->fd().eof() and from_destination.space_available() ); } ) );
 
-                /* requests from client go to request parser and bytestreamqueue */
+                /* requests from client go to request parser */
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::In,
                                                    [&] () {
-                                                       if ( dst_port == 443 ) { /* SSL_read decrypts when full record -> if ssl, only read if we have full record size available to push */
-                                                           if ( from_client.contiguous_space_to_push() < 16384 ) { return ResultType::Continue; }
-                                                       }
-                                                       string buffer = client_rw->read_amount( from_client.contiguous_space_to_push() );
-                                                       from_client.push_string( buffer );
+                                                       string buffer = client_rw->read();
                                                        request_parser.parse( buffer );
                                                        return ResultType::Continue;
                                                    },
-                                                   [&] () { return ( not server_rw->fd().eof() and from_client.space_available() ); } ) );
+                                                   [&] () { return not server_rw->fd().eof(); } ) );
 
-                /* completed requests from client are serialized and bytestreamqueue contents are sent to server */
+                /* completed requests from client are serialized and sent to server */
                 poller.add_action( Poller::Action( server_rw->fd(), Direction::Out,
                                                    [&] () {
-                                                       if ( dst_port == 443 ) {
-                                                           from_client.pop_ssl( move( server_rw ) );
-                                                       } else {
-                                                           from_client.pop( server_rw->fd() );
-                                                       }
-                                                       if ( not request_parser.empty() ) {
-                                                           response_parser.new_request_arrived( request_parser.front() );
+                                                       server_rw->write( request_parser.front().str() );
+                                                       response_parser.new_request_arrived( request_parser.front() );
 
-                                                           /* add request to current request/response pair */
-                                                           current_pair.mutable_req()->CopyFrom( request_parser.front().toprotobuf() );
+                                                       /* add request to current request/response pair */
+                                                       current_pair.mutable_req()->CopyFrom( request_parser.front().toprotobuf() );
 
-                                                           request_parser.pop();
-                                                       }
+                                                       request_parser.pop();
                                                        return ResultType::Continue;
                                                    },
-                                                   [&] () { return from_client.non_empty(); } ) );
+                                                   [&] () { return not request_parser.empty(); } ) );
 
                 /* completed responses from server are serialized and bytestreamqueue contents are sent to client */
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::Out,
@@ -165,7 +155,7 @@ void HTTPProxy::handle_tcp( Archive & archive )
 
 void HTTPProxy::reqres_to_protobuf( HTTP_Record::reqrespair & current_pair, const HTTPResponse & response )
 {
-    /* if request is present in current request/response pair, add response and write to file */
+    /* if request is present in current request/response pair, add response and add to vector */
     if ( current_pair.has_req() ) {
         current_pair.mutable_res()->CopyFrom( response.toprotobuf() );
         stored_pairs_.emplace_back( current_pair );
