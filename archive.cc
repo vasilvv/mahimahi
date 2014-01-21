@@ -156,6 +156,7 @@ void Archive::add_request( const HTTP_Record::http_message & request )
 
 void Archive::add_response( const string & response, const size_t position )
 {
+    cout << "SIZE: " << pending_.size() << " INSERT: " << position << endl;
     assert( pending_.size() > position );
     pending_.at( position ).second = response;
 }

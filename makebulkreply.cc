@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "util.hh"
 #include "system_runner.hh"
@@ -28,7 +29,8 @@ int main( int argc, char *argv[] )
         list_files( directory.c_str(), files );
         FileDescriptor bulkreply = SystemCall( "open", open( "bulkreply.proto", O_WRONLY | O_CREAT, 00700 ) );
         uint32_t num_files = files.size();
-        SystemCall( "write", write( bulkreply.num(), &num_files, 4 ) );
+        bulkreply.write( to_string(num_files) );
+        //SystemCall( "write", write( bulkreply.num(), &num_files, 4 ) );
         unsigned int i;
         for ( i = 0; i < num_files; i++ ) { /* iterate through recorded files and for each request, append size and request to bulkreply */
             FileDescriptor fd = SystemCall( "open", open( files[i].c_str(), O_RDONLY ) );

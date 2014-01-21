@@ -17,6 +17,8 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
                 /* set request/response left to total (first 4 bytes) */
                 requests_left_ = atoi( parser_buffer_.substr( 0, 4 ).c_str() );
                 responses_left_ = atoi( parser_buffer_.substr( 0, 4 ).c_str() );
+                cout << "READ SIZE: " << atoi(parser_buffer_.substr( 0, 4 ).c_str()) << endl;
+                cout << "REQUESTS_LEFT AT BEGINNING: " << requests_left_ << endl;
 
                 /* Transition appropriately */
                 state_ = MESSAGE_HDR;
@@ -53,9 +55,11 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
                 if ( requests_left_ > 0 ) { /* this is a request so store protobuf in pending */
                     HTTP_Record::http_message request;
                     request.ParseFromString( parser_buffer_ );
+                    cout << "ADDING REQUEST" << endl;
                     archive.add_request( request );
                     requests_left_ = requests_left_ - 1;
                 } else { /* this is a response so store string in pending_ */
+                    cout << "ADDING RESPONSE" << endl;
                     size_t pos = archive.num_of_requests() - responses_left_;
                     archive.add_response( parser_buffer_.substr( 0, current_message_size_ ), pos );
                     responses_left_ = responses_left_ - 1;
