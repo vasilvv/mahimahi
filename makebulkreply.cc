@@ -28,7 +28,6 @@ int main( int argc, char *argv[] )
         list_files( directory.c_str(), files );
         FileDescriptor bulkreply = SystemCall( "open", open( "bulkreply.proto", O_WRONLY | O_CREAT, 00700 ) );
         uint32_t num_files = files.size();
-        bulkreply.write( "HTTP/1.1 200 OK\r\nContent-Type: application/x-bulkreply\r\n\r\n");
         SystemCall( "write", write( bulkreply.num(), &num_files, 4 ) );
         unsigned int i;
         for ( i = 0; i < num_files; i++ ) { /* iterate through recorded files and for each request, append size and request to bulkreply */
