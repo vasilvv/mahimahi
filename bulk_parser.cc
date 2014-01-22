@@ -1,5 +1,7 @@
 /* -*-mode:c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
+#include <sstream>
+#include <fstream>
 #include <assert.h>
 #include "ezio.hh"
 #include "bulk_parser.hh"
@@ -15,10 +17,12 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
         case RESPONSE_SIZE: {
             if ( parser_buffer_.size() >= 4) { /* have enough for bulk response size */
                 /* set request/response left to total (first 4 bytes) */
-                requests_left_ = atoi( parser_buffer_.substr( 0, 4 ).c_str() );
-                responses_left_ = atoi( parser_buffer_.substr( 0, 4 ).c_str() );
-                cout << "READ SIZE: " << atoi(parser_buffer_.substr( 0, 4 ).c_str()) << endl;
-                cout << "REQUESTS_LEFT AT BEGINNING: " << requests_left_ << endl;
+                std::istringstream ifs( parser_buffer_.substr(0,4));
+                uint32_t total_size;
+                ifs.read(reinterpret_cast<char*>(&total_size), sizeof total_size);
+                cout << "SIZE: " << total_size << endl;
+                requests_left_ = total_size;
+                responses_left_ = total_size;
 
                 /* Transition appropriately */
                 state_ = MESSAGE_HDR;
@@ -35,7 +39,11 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
 
         case MESSAGE_HDR: {
             if ( parser_buffer_.size() >= 4 ) { /* have enough for current message size */
-                current_message_size_ = atoi ( parser_buffer_.substr( 0, 4 ).c_str() );
+                std::istringstream ifs( parser_buffer_.substr(0,4));
+                uint32_t message_size;
+                ifs.read(reinterpret_cast<char*>(&message_size), sizeof message_size);
+                cout << "MESSAGE SIZE: " << message_size << endl;
+                current_message_size_ = message_size;
 
                /* Transition to next state */
                 state_ = MESSAGE;

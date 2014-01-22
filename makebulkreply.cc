@@ -27,10 +27,10 @@ int main( int argc, char *argv[] )
         }
         vector< string > files;
         list_files( directory.c_str(), files );
-        FileDescriptor bulkreply = SystemCall( "open", open( "bulkreply.proto", O_WRONLY | O_CREAT, 00700 ) );
         uint32_t num_files = files.size();
-        bulkreply.write( to_string(num_files) );
-        //SystemCall( "write", write( bulkreply.num(), &num_files, 4 ) );
+        cout << "SIZE: " << num_files << endl;
+        FileDescriptor bulkreply = SystemCall( "open", open( "bulkreply.proto", O_WRONLY | O_CREAT, 00700 ) );
+        SystemCall( "write", write( bulkreply.num(), &num_files, 4 ) );
         unsigned int i;
         for ( i = 0; i < num_files; i++ ) { /* iterate through recorded files and for each request, append size and request to bulkreply */
             FileDescriptor fd = SystemCall( "open", open( files[i].c_str(), O_RDONLY ) );
@@ -41,6 +41,7 @@ int main( int argc, char *argv[] )
             string current_req;
             current_record.req().SerializeToString( &current_req );
             uint32_t req_size = current_req.size();
+            cout << "SIZE REQ: " << req_size << endl;
             SystemCall( "write", write( bulkreply.num(), &req_size, 4 ) );
             bulkreply.write( current_req );
         }
