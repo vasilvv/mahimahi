@@ -30,6 +30,7 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
                 /* shrink parser_buffer_ */
                 parser_buffer_ = parser_buffer_.substr( 4 );
                 acked_so_far_ = acked_so_far_ + 4;
+
                 break;
             } else {
                 /* Haven't seen enough bytes so far, do nothing */
@@ -39,17 +40,19 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
 
         case MESSAGE_HDR: {
             if ( parser_buffer_.size() >= 4 ) { /* have enough for current message size */
-                std::istringstream ifs( parser_buffer_.substr(0,4));
+                cout << "PARSER BUFFER SIZE BEFORE SIZE: " << parser_buffer_.size() << endl;
+                std::istringstream its( parser_buffer_.substr(0,4));
                 uint32_t message_size;
-                ifs.read(reinterpret_cast<char*>(&message_size), sizeof message_size);
-                cout << "MESSAGE SIZE: " << message_size << endl;
+                its.read(reinterpret_cast<char*>(&message_size), sizeof message_size);
                 current_message_size_ = message_size;
+                cout << "MESSAGE SIZE: " << current_message_size_ << endl;
 
                /* Transition to next state */
                 state_ = MESSAGE;
 
                 /* shrink parser_buffer_ */
                 parser_buffer_ = parser_buffer_.substr( 4 );
+                cout << "PARSER BUFFER SIZE AFTER SIZE: " << parser_buffer_.size() << endl;
                 acked_so_far_ = acked_so_far_ + 4;
                 break;
             } else {
@@ -61,8 +64,10 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
         case MESSAGE: {
             if ( parser_buffer_.size() >= current_message_size_ ) { /* we have the entire message */
                 if ( requests_left_ > 0 ) { /* this is a request so store protobuf in pending */
+                    fstream requests_fd_("logbulk.req", std::ios::binary|std::ios::out);
+                    requests_fd_.write( parser_buffer_.substr(0, current_message_size_).c_str(), current_message_size_);
                     HTTP_Record::http_message request;
-                    request.ParseFromString( parser_buffer_ );
+                    request.ParseFromString( parser_buffer_.substr( 0, current_message_size_) );
                     cout << "ADDING REQUEST" << endl;
                     archive.add_request( request );
                     requests_left_ = requests_left_ - 1;

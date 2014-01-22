@@ -42,8 +42,13 @@ int main( int argc, char *argv[] )
             current_record.req().SerializeToString( &current_req );
             uint32_t req_size = current_req.size();
             cout << "SIZE REQ: " << req_size << endl;
+            HTTP_Record::http_message testi;
+            testi.ParseFromString( current_req.substr(0, req_size ) );
+            cout << testi.first_line() << endl;
             SystemCall( "write", write( bulkreply.num(), &req_size, 4 ) );
-            bulkreply.write( current_req );
+            //SystemCall( "write", write( bulkreply.num(), &current_req, sizeof( current_req ) ) );
+            //bulkreply.write( current_req );
+            current_record.req().SerializeToFileDescriptor( bulkreply.num() );
         }
         for ( i = 0; i < num_files; i++ ) { /* iterate through recorded files and for each response, append size and response to bulkreply */
             FileDescriptor fd = SystemCall( "open", open( files[i].c_str(), O_RDONLY ) );

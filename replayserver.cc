@@ -144,14 +144,32 @@ int main()
         string incoming_req = string( getenv( "REQUEST_METHOD" ) ) + " " + string( getenv( "REQUEST_URI" ) );
         if ( incoming_req == "GET /" ) {
             string bulk_file_name = string( getenv( "RECORD_FOLDER" ) ) + "bulkreply.proto";
-            ifstream file (bulk_file_name, ios::in | ios::binary);
-            cout << "HTTP/1.1 200 OK\r\n";
-            cout << "Content-Type: application/x-bulkreply\r\n\r\n";
-            while ( !file.eof() ) {
+            //ifstream file (bulk_file_name, ios::in | ios::binary);
+            //cout << "HTTP/1.1 200 OK\r\n";
+            //cout << "Content-Type: application/x-bulkreply\r\n\r\n";
+            /*while ( !file.eof() ) {
                 string line;
                 getline( file, line );
                 cout << line;
+            }*/
+            std::ifstream is(bulk_file_name, std::ifstream::binary);
+            string str;
+            if (is) {
+                // get length of file:
+                is.seekg(0, is.end);
+                int length = is.tellg();
+                is.seekg(0, is.beg);
+ 
+                str.resize(length, ' '); // reserve space
+                char* begin = &*str.begin();
+ 
+                is.read(begin, length);
+                is.close();
             }
+            cout << "HTTP/1.1 200 OK\r\n";
+            cout << "Content-Type: application/x-bulkreply\r\n\r\n";
+            cout << str;
+
             return EXIT_SUCCESS;
         }
 
