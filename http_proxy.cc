@@ -91,7 +91,7 @@ void HTTPProxy::handle_tcp( Archive & archive )
                                                            if ( from_destination.contiguous_space_to_push() < 16384 ) { return ResultType::Continue; }
                                                        }
                                                        string buffer = server_rw->read_amount( from_destination.contiguous_space_to_push() );
-                                                       from_destination.push_string( buffer );
+                                                       //from_destination.push_string( buffer );
                                                        response_parser.parse( buffer, archive );
                                                        return ResultType::Continue;
                                                    },
@@ -112,6 +112,7 @@ void HTTPProxy::handle_tcp( Archive & archive )
                                                        /* check if request is stored: if pending->wait, if response present->send to client, if neither->send request to server */
                                                        HTTP_Record::http_message complete_request = request_parser.front().toprotobuf();
                                                        if ( archive.request_pending( complete_request ) ) {
+                                                           cout << "WE ARE HANDLING REQUEST WITH ARCHIVE" << endl;
                                                            while ( archive.request_pending( complete_request ) ) { /* wait until we have the response filled in */
                                                                sleep( 1 );
                                                            }
@@ -123,7 +124,8 @@ void HTTPProxy::handle_tcp( Archive & archive )
 
                                                        } else if ( archive.have_response( complete_request ) ) { /* corresponding response already stored- send to client */
                                                            if ( from_destination.contiguous_space_to_push() >= archive.corresponding_response( complete_request ).size() ) { /* we have space to add response */
-                                                               from_destination.push_string( request_parser.front().str() );
+                                                               cout << "USING OUR RESPONSE" << endl;
+                                                               from_destination.push_string( archive.corresponding_response( complete_request ) );
                                                            } else {
                                                                return ResultType::Continue;
                                                            }

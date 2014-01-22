@@ -65,7 +65,6 @@ pair< bool, bool > compare_requests( const HTTP_Record::http_message & saved_req
             }
         }
     }
-
     /* compare existing environment variables for request to stored header values */
     if ( not check_headers( "Accept_Encoding", saved_req, new_req ) ) { return make_pair( false, false ); }
     if ( not check_headers( "Accept_Language", saved_req, new_req ) ) { return make_pair( false, false ); }
@@ -133,7 +132,7 @@ string Archive::get_corresponding_response( const HTTP_Record::http_message & ne
     for ( unsigned int i = 0; i < pending_.size(); i++ ) { /* iterate through pending_ to see if any requests match */
         pair< bool, bool > res = compare_requests( pending_.at( i ).first, new_req );
         if ( res.first == true ) { /* request either matches exactly or is a potential match */
-            if ( res.second ==  true ) { /* full match */
+            if ( res.second ==  false ) { /* full match */
                 return pending_.at( i ).second;
             } else { /* potential match */
                 potential_matches.emplace_back( pending_.at( i ) );
@@ -156,7 +155,6 @@ void Archive::add_request( const HTTP_Record::http_message & request )
 
 void Archive::add_response( const string & response, const size_t position )
 {
-    cout << "SIZE: " << pending_.size() << " INSERT: " << position << endl;
     assert( pending_.size() > position );
     pending_.at( position ).second = response;
 }
@@ -166,7 +164,6 @@ bool Archive::request_pending( const HTTP_Record::http_message & new_req )
     if ( get_corresponding_response( new_req ) == "pending" ) {
         return true;
     }
-
     return false;
 }
 

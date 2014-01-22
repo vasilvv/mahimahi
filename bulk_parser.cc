@@ -10,6 +10,8 @@ using namespace std;
 
 string::size_type BulkBodyParser::read( const std::string & input_buffer, Archive & archive )
 {
+    last_size_ = parser_buffer_.size();
+    int used_now;
     parser_buffer_ += input_buffer;
 
     while ( !parser_buffer_.empty() ) {
@@ -30,6 +32,7 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
                 /* shrink parser_buffer_ */
                 parser_buffer_ = parser_buffer_.substr( 4 );
                 acked_so_far_ = acked_so_far_ + 4;
+                used_now = used_now + 4;
 
                 break;
             } else {
@@ -54,6 +57,7 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
                 parser_buffer_ = parser_buffer_.substr( 4 );
                 cout << "PARSER BUFFER SIZE AFTER SIZE: " << parser_buffer_.size() << endl;
                 acked_so_far_ = acked_so_far_ + 4;
+                used_now = used_now + 4;
                 break;
             } else {
                 /* Haven't seen enough bytes so far, do nothing */
@@ -71,13 +75,24 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
                     cout << "ADDING REQUEST" << endl;
                     archive.add_request( request );
                     requests_left_ = requests_left_ - 1;
+                    cout << "PENDING SIZE AFTER ADDING: " << archive.num_of_requests() << endl;
                 } else { /* this is a response so store string in pending_ */
                     cout << "ADDING RESPONSE" << endl;
+                    HTTP_Record::http_message response;
+                    response.ParseFromString( parser_buffer_.substr( 0, current_message_size_) );
+                    string tot_response;
+                    tot_response.append( response.first_line() );
+                    for ( int j = 0; j < response.headers_size(); j++ ) {
+                        tot_response.append( response.headers( j ) );
+                    }
+                    tot_response.append( response.body() ); 
                     size_t pos = archive.num_of_requests() - responses_left_;
-                    archive.add_response( parser_buffer_.substr( 0, current_message_size_ ), pos );
+                    //archive.add_response( parser_buffer_.substr( 0, current_message_size_ ), pos );
+                    archive.add_response( tot_response, pos );
                     responses_left_ = responses_left_ - 1;
                 }
                 acked_so_far_ = acked_so_far_ + current_message_size_;
+                used_now = used_now + current_message_size_;
 
                 /* Transition back to begin next message */
                 state_ = MESSAGE_HDR;
@@ -86,7 +101,9 @@ string::size_type BulkBodyParser::read( const std::string & input_buffer, Archiv
                 parser_buffer_ = parser_buffer_.substr( current_message_size_ );
 
                 if ( responses_left_ == 0 ) { /* entire bulk response is complete */
-                    return acked_so_far_;
+                    cout << "FINISHED WITH: " << parser_buffer_.size() << endl;
+                    //return acked_so_far_;
+                    return ( used_now - last_size_ );
                 }
                 break;
             } else {

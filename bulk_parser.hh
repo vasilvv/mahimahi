@@ -22,6 +22,7 @@ private:
     std::string::size_type acked_so_far_ {0};
     enum {RESPONSE_SIZE, MESSAGE_HDR, MESSAGE} state_ {RESPONSE_SIZE};
 
+    int last_size_ {0};
 public:
     std::string::size_type read( const std::string &, Archive & archive ) override;
 
