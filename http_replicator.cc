@@ -28,7 +28,7 @@
 using namespace std;
 using namespace PollerShortNames;
 
-HTTPReplicator::HTTPReplicator( const Address & listener_addr, const std::string & record_folder ) : HTTPProxy( listener_addr, record_folder ), replayer( record_folder )
+HTTPReplicator::HTTPReplicator( const Address & listener_addr, const std::string & record_folder, ReplayServer* replayer ) : HTTPProxy( listener_addr, record_folder ), replayer_(replayer)
 {
 }
 
@@ -64,7 +64,7 @@ void HTTPReplicator::handle_tcp( void )
                 /* completed requests from client are serialized and sent to server */
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::Out,
                                                    [&] () {
-                                                       client_rw->write( replayer.replay( request_parser.front() ) );
+                                                       client_rw->write( replayer_->replay( request_parser.front() ) );
                                                        request_parser.pop();
                                                        return ResultType::Continue;
                                                    },

@@ -9,9 +9,9 @@
 class HTTPReplicator : public HTTPProxy
 {
 protected:
-    ReplayServer replayer;
+    std::unique_ptr<ReplayServer> replayer_;
 public:
-    HTTPReplicator( const Address & listener_addr, const std::string & record_folder );
+    HTTPReplicator( const Address & listener_addr, const std::string & record_folder, ReplayServer* replayer );
     virtual void handle_tcp( void );
 };
 

@@ -20,10 +20,12 @@ private:
     static int longest_substr( const std::string & str1, const std::string & str2 );
     int closest_match( const std::vector< HTTP_Record::reqrespair > & possible, std::string && req ) const;
     void return_message( const HTTP_Record::reqrespair & record, std::stringstream & out ) const;
+protected:
+    virtual const std::string handle_special_request( const HTTPRequest & request );
 public:
     ReplayServer( const std::string & record_folder );
 
-    const std::string replay( const HTTPRequest & request ) const;
+    const std::string replay( const HTTPRequest & request );
 };
 
 #endif /* REPLAYSERVER_HH */

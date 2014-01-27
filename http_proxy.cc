@@ -23,6 +23,7 @@
 #include "http_request_parser.hh"
 #include "http_response_parser.hh"
 #include "file_descriptor.hh"
+#include "youtube_util.hh"
 
 using namespace std;
 using namespace PollerShortNames;
@@ -118,7 +119,12 @@ void HTTPProxy::handle_tcp( void )
                 poller.add_action( Poller::Action( client_rw->fd(), Direction::Out,
                                                    [&] () {
                                                        client_rw->write( response_parser.front().str() );
-                                                       reqres_to_protobuf( current_pair, response_parser.front() );
+                                                       if( is_youtube_media_request( current_pair.req().first_line() ) ) {
+                                                           current_pair.clear_req();
+                                                           current_pair.clear_res();
+                                                       } else {
+                                                           reqres_to_protobuf( current_pair, response_parser.front() );
+                                                       }
                                                        response_parser.pop();
                                                        return ResultType::Continue;
                                                    },

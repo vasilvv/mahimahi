@@ -16,6 +16,7 @@
 #include "dns_proxy.hh"
 #include "http_proxy.hh"
 #include "http_replicator.hh"
+#include "youtube_server.hh"
 #include "netdevice.hh"
 
 #include "config.h"
@@ -40,14 +41,18 @@ int main( int argc, char *argv[] )
 
         check_requirements( argc, argv );
 
-        if ( argc != 2 ) {
-            throw Exception( "Usage", string( argv[ 0 ] ) + " folder_for_recorded_content" );
+        if ( argc != 3 ) {
+            throw Exception( "Usage", string( argv[ 0 ] ) + " folder_for_recorded_content videos_folder" );
         }
 
         /* Make sure directory ends with '/' so we can prepend directory to file name for storage */
         string directory( argv[ 1 ] );
+		string videodir( argv[ 2 ] );
         if ( directory.back() != '/' ) {
             directory.append( "/" );
+        }
+        if ( videodir.back() != '/' ) {
+            videodir.append( "/" );
         }
 
         const Address nameserver = first_nameserver();
@@ -74,7 +79,7 @@ int main( int argc, char *argv[] )
         NAT nat_rule( ingress_addr );
 
         /* set up http proxy for tcp */
-        unique_ptr<HTTPReplicator> http_proxy( new HTTPReplicator( egress_addr, directory ) );
+        unique_ptr<HTTPReplicator> http_proxy( new HTTPReplicator( egress_addr, directory, new YouTubeServer( directory, videodir ) ) );
 
         /* set up dnat */
         DNAT dnat( http_proxy->tcp_listener().local_addr(), egress_name );
@@ -96,7 +101,7 @@ int main( int argc, char *argv[] )
                 ChildProcess bash_process( [&]() {
                         /* restore environment and tweak bash prompt */
                         environ = user_environment;
-                        prepend_shell_prefix( "[record] " );
+                        prepend_shell_prefix( "[youtube-replay] " );
 
                         const string shell = shell_path();
                         SystemCall( "execl", execl( shell.c_str(), shell.c_str(), static_cast<char *>( nullptr ) ) );

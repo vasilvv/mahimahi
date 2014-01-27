@@ -61,6 +61,7 @@ youtubeshell_SOURCES = $(common_source) youtubeshell.cc \
 	secure_socket.hh secure_socket.cc \
 	replayserver.hh replayserver.cc \
 	http_replicator.hh http_replicator.cc \
+	youtube_server.hh youtube_server.cc \
 	certificate.hh
 youtubeshell_LDADD = -lrt
 youtubeshell_LDADD += protobufs/libhttprecordprotos.a -lm $(protobuf_LIBS)

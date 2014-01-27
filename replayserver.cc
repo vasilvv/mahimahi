@@ -136,8 +136,13 @@ void ReplayServer::return_message( const HTTP_Record::reqrespair & record, strin
     out << record.res().body() << endl;
 }
 
-const std::string ReplayServer::replay( const HTTPRequest & request ) const
+const std::string ReplayServer::replay( const HTTPRequest & request )
 {
+    std::string special_response = handle_special_request( request );
+    if( special_response.length() > 0 ) {
+        return special_response;
+    }
+
     vector< HTTP_Record::reqrespair > possible_matches;
     possible_matches.reserve( all_responses.size() );
 
@@ -179,4 +184,10 @@ ReplayServer::ReplayServer( const std::string & record_folder ) {
         all_responses.push_back( move( current_record ) );
         SystemCall( "close", close( fd ) );
     }
+}
+
+const string ReplayServer::handle_special_request( const HTTPRequest & request )
+{
+    (void) request; // this is why -Werror is sometimes a bad idea
+    return string();
 }
