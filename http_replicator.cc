@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <time.h>
 
 #include "address.hh"
 #include "socket.hh"
@@ -69,8 +70,10 @@ void HTTPReplicator::handle_tcp( void )
                                                    },
                                                    [&] () { return not request_parser.empty(); } ) );
 
+                timespec sleep_time = { 0, 1000 * 50 };
                 while( true ) {
                     auto poll_result = poller.poll( 60000 );
+                    nanosleep( &sleep_time, nullptr ); // Prevent CPU overload under high load
                     if ( poll_result.result == Poller::Result::Type::Exit ) {
                         return;
                     }
