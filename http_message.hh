@@ -73,6 +73,8 @@ public:
     /* return complete request or response as http_message protobuf */
     HTTP_Record::http_message toprotobuf( void ) const;
 
+	const std::string & get_first_line( void ) const;
+
     /* compare two strings for (case-insensitive) equality,
        in ASCII without sensitivity to locale */
     static bool equivalent_strings( const std::string & a, const std::string & b );

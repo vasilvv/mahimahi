@@ -151,6 +151,11 @@ const string & HTTPMessage::get_header_value( const std::string & header_name ) 
     throw Exception( "HTTPMessage header not found", header_name );
 }
 
+const std::string & HTTPMessage::get_first_line( void ) const
+{
+    return first_line_;
+}
+
 /* serialize the request or response as one string */
 std::string HTTPMessage::str( void ) const
 {

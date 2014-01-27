@@ -4,6 +4,7 @@
 #include <csignal>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 #include "util.hh"
@@ -13,41 +14,35 @@
 #include "exception.hh"
 #include "http_message.hh"
 
+#include "replayserver.hh"
+
 using namespace std;
 
-/* compare specific env header value and stored header value (if either does not exist, return true) */
-bool check_headers( const string & env_header, const string & stored_header, HTTP_Record::http_message & saved_req )
+bool ReplayServer::check_headers( const HTTPRequest & request, const string & stored_header, HTTP_Record::http_message & saved_req ) const
 {
-    if ( getenv( env_header.c_str() ) == NULL ) {
+    if ( not request.has_header( stored_header ) ) {
         return true;
     }
 
-    string env_value;
-
-    /* environment header was passed to us */
-    env_value = string( getenv( env_header.c_str() ) );
+    auto req_value = request.get_header_value( stored_header );
     for ( int i = 0; i < saved_req.headers_size(); i++ ) {
         HTTPHeader current_header( saved_req.headers(i) );
         if ( HTTPMessage::equivalent_strings( current_header.key(), stored_header ) ) { /* compare to environment variable */
-            if ( current_header.value().substr( 0, current_header.value().find( "\r\n" ) ) == getenv( env_header.c_str() ) ) {
-                return true;
-            } else {
-                cerr << stored_header << " does not match environment variable" << endl;
-                return false;
-            }
+            return current_header.value().substr( 0, current_header.value().find( "\r\n" ) ) == req_value;
         }
     }
-    /* environment header not in stored header */
+    
+    /* request header not in stored header */
     return true;
 }
 
 /* compare request_line and certain headers of incoming request and stored request */
-bool compare_requests( HTTP_Record::reqrespair & saved_record, vector< HTTP_Record::reqrespair > & possible_matches )
+bool ReplayServer::compare_requests( const HTTPRequest & request, const HTTP_Record::reqrespair & saved_record, vector< HTTP_Record::reqrespair > & possible_matches ) const
 {
     HTTP_Record::http_message saved_req = saved_record.req();
 
     /* request line */
-    string new_req = string( getenv( "REQUEST_METHOD" ) ) + " " + string( getenv( "REQUEST_URI" ) ) + " " + string ( getenv( "SERVER_PROTOCOL" ) ) + "\r\n";
+    string new_req = request.get_first_line() + "\r\n";
 
     uint64_t query_loc = saved_req.first_line().find( "?" );
     if ( query_loc == std::string::npos ) { /* no query string: compare object name */
@@ -56,7 +51,13 @@ bool compare_requests( HTTP_Record::reqrespair & saved_record, vector< HTTP_Reco
         }
     } else { /* query string present: compare and if not match but object names matches, add to possibilities */
         if ( not ( new_req == saved_req.first_line() ) ) {
-            string no_query = string( getenv( "REQUEST_METHOD" ) ) + " " + string( getenv( "SCRIPT_NAME" ) );
+            uint64_t query_loc_request = new_req.find( "?" );
+            string no_query;
+            if( query_loc_request == std::string::npos ) {
+                no_query = new_req.substr( 0, new_req.rfind( " " ) );
+            } else {
+                no_query = new_req.substr( 0, query_loc_request );
+            }
             if ( no_query == saved_req.first_line().substr( 0, query_loc ) ) { /* request w/o query string matches */
                 possible_matches.emplace_back( saved_record );
             }
@@ -65,11 +66,11 @@ bool compare_requests( HTTP_Record::reqrespair & saved_record, vector< HTTP_Reco
     }
 
     /* compare existing environment variables for request to stored header values */
-    if ( not check_headers( "HTTP_ACCEPT_ENCODING", "Accept_Encoding", saved_req ) ) { return false; }
-    if ( not check_headers( "HTTP_ACCEPT_LANGUAGE", "Accept_Language", saved_req ) ) { return false; }
+    if ( not check_headers( request, "Accept-Encoding", saved_req ) ) { return false; }
+    if ( not check_headers( request, "Accept-Language", saved_req ) ) { return false; }
     //if ( not check_headers( "HTTP_CONNECTION", "Connection", saved_req ) ) { return false; }
     //if ( not check_headers( "HTTP_COOKIE", "Cookie", saved_req ) ) { return false; }
-    if ( not check_headers( "HTTP_HOST", "Host", saved_req ) ) { return false; }
+    if ( not check_headers( request, "Host", saved_req ) ) { return false; }
     //if ( not check_headers( "HTTP_REFERER", "Referer", saved_req ) ) { return false; }
     //if ( not check_headers( "HTTP_USER_AGENT", "User-Agent", saved_req ) ) { return false; }
 
@@ -78,7 +79,7 @@ bool compare_requests( HTTP_Record::reqrespair & saved_record, vector< HTTP_Reco
 }
 
 /* return size of longest substring match between two strings */
-int longest_substr( const string & str1, const string & str2 )
+int ReplayServer::longest_substr( const string & str1, const string & str2 )
 {
     /* http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_substring#C.2B.2B */
 
@@ -114,9 +115,8 @@ int longest_substr( const string & str1, const string & str2 )
 }
 
 /* return index of stored request_line with longest matching substring to current request */
-int closest_match( const vector< HTTP_Record::reqrespair > & possible )
+int ReplayServer::closest_match( const vector< HTTP_Record::reqrespair > & possible, string && req ) const
 {
-    string req = string( getenv( "REQUEST_METHOD" ) ) + " " + string( getenv( "REQUEST_URI" ) ) + " " + string ( getenv( "SERVER_PROTOCOL" ) ) + "\r\n";
     vector< int > longest_str;
     for ( unsigned int i = 0; i < possible.size(); i++ ) {
         string current_req = possible.at( i ).req().first_line();
@@ -127,46 +127,52 @@ int closest_match( const vector< HTTP_Record::reqrespair > & possible )
 }
 
 /* write response to stdout (using no-parsed headers for apache ) */
-void return_message( const HTTP_Record::reqrespair & record )
+void ReplayServer::return_message( const HTTP_Record::reqrespair & record, stringstream & out ) const
 {
-    cout << record.res().first_line();
+    out << record.res().first_line();
     for ( int j = 0; j < record.res().headers_size(); j++ ) {
-        cout << record.res().headers( j );
+        out << record.res().headers( j );
     }
-    cout << record.res().body() << endl;
+    out << record.res().body() << endl;
 }
 
-int main()
+const std::string ReplayServer::replay( const HTTPRequest & request ) const
 {
-    try {
-        vector< string > files;
-        list_files( getenv( "RECORD_FOLDER" ), files );
-        vector< HTTP_Record::reqrespair > possible_matches;
-        possible_matches.reserve( files.size() );
-        unsigned int i;
-        for ( i = 0; i < files.size(); i++ ) { /* iterate through recorded files and compare requests to incoming req*/
-            int fd = SystemCall( "open", open( files[i].c_str(), O_RDONLY ) );
-            HTTP_Record::reqrespair current_record;
-            current_record.ParseFromFileDescriptor( fd );
-            if ( compare_requests( current_record, possible_matches ) ) { /* requests match */
-                return_message( current_record );
-                SystemCall( "close", close( fd ) );
-                break;
-            }
-            SystemCall( "close", close( fd ) );
+    vector< HTTP_Record::reqrespair > possible_matches;
+    possible_matches.reserve( all_responses.size() );
+
+    stringstream response;
+
+    unsigned int i;
+    for ( i = 0; i < all_responses.size(); i++ ) { /* iterate through recorded files and compare requests to incoming req */
+        const HTTP_Record::reqrespair & current_record = all_responses[i];
+        if ( compare_requests( request, current_record, possible_matches ) ) { /* requests match */
+            return_message( current_record, response );
+            break;
         }
-        if ( i == files.size() ) { /* no exact matches for request */
-            if ( possible_matches.size() == 0 ) { /* no potential matches */
-                cout << "HTTP/1.1 200 OK\r\n";
-                cout << "Content-Type: Text/html\r\nConnection: close\r\n";
-                cout << "Content-Length: 24\r\n\r\nCOULD NOT FIND AN OBJECT";
-                throw Exception( "replayserver", "Can't find: " + string( getenv( "REQUEST_METHOD" ) ) + " " + string( getenv( "REQUEST_URI" ) ) );
-            } else { /* return possible match with largest shared substring */
-                return_message( possible_matches.at( closest_match( possible_matches ) ) );
-            }
+    }
+
+    if ( i == all_responses.size() ) { /* no exact matches for request */
+        if ( possible_matches.size() == 0 ) { /* no potential matches */
+            response << "HTTP/1.1 200 OK\r\n";
+            response << "Content-Type: Text/html\r\nConnection: close\r\n";
+            response << "Content-Length: 24\r\n\r\nCOULD NOT FIND AN OBJECT";
+        } else { /* return possible match with largest shared substring */
+            return_message( possible_matches.at( closest_match( possible_matches, request.get_first_line() + "\r\n" ) ), response );
         }
-    } catch ( const Exception & e ) {
-        e.perror();
-        return EXIT_FAILURE;
+    }
+
+    return response.str();
+}
+
+ReplayServer::ReplayServer( const std::string & record_folder ) {
+    vector< string > files;
+    list_files( record_folder, files );
+    for ( unsigned int i = 0; i < files.size(); i++ ) {
+        int fd = SystemCall( "open", open( files[i].c_str(), O_RDONLY ) );
+        HTTP_Record::reqrespair current_record;
+        current_record.ParseFromFileDescriptor( fd );
+        all_responses.push_back( move( current_record ) );
+        SystemCall( "close", close( fd ) );
     }
 }

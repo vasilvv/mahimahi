@@ -45,23 +45,27 @@ recordshell_LDADD += protobufs/libhttprecordprotos.a -lm $(protobuf_LIBS)
 recordshell_LDADD += -lssl -lcrypto -ldl
 recordshell_LDFLAGS = -pthread
 
-bin_PROGRAMS += replayshell
-replayshell_SOURCES = $(common_source) replayshell.cc \
-	temp_file.hh temp_file.cc \
-	web_server.hh web_server.cc \
-	apache_configuration.hh \
-	http_header.cc http_header.hh
-replayshell_LDADD = -lrt
-replayshell_LDADD += protobufs/libhttprecordprotos.a -lm $(protobuf_LIBS)
-replayshell_LDFLAGS = -pthread
-
-bin_PROGRAMS += nph-replayserver.cgi
-nph_replayserver_cgi_SOURCES = $(common_source) replayserver.cc \
-	http_header.cc http_header.hh \
-	http_message.cc http_message.hh
-nph_replayserver_cgi_LDADD = -lrt
-nph_replayserver_cgi_LDADD += protobufs/libhttprecordprotos.a -lm $(protobuf_LIBS)
-nph_replayserver_cgi_LDFLAGS = -pthread
+bin_PROGRAMS += youtubeshell
+youtubeshell_SOURCES = $(common_source) youtubeshell.cc \
+	http_proxy.hh http_proxy.cc \
+	http_request_parser.hh \
+	http_request.hh http_request.cc \
+	http_response.hh http_response.cc \
+	http_header.hh http_header.cc \
+	http_response_parser.hh http_response_parser.cc \
+	tokenize.hh mime_type.hh mime_type.cc \
+	body_parser.hh \
+	chunked_parser.hh chunked_parser.cc \
+	http_message.hh http_message.cc \
+	http_message_sequence.hh \
+	secure_socket.hh secure_socket.cc \
+	replayserver.hh replayserver.cc \
+	http_replicator.hh http_replicator.cc \
+	certificate.hh
+youtubeshell_LDADD = -lrt
+youtubeshell_LDADD += protobufs/libhttprecordprotos.a -lm $(protobuf_LIBS)
+youtubeshell_LDADD += -lssl -lcrypto -ldl
+youtubeshell_LDFLAGS = -pthread
 
 install-exec-hook:
 	chown root $(DESTDIR)$(bindir)/delayshell
@@ -70,5 +74,5 @@ install-exec-hook:
 	chmod u+s $(DESTDIR)$(bindir)/cellshell
 	chown root $(DESTDIR)$(bindir)/recordshell
 	chmod u+s $(DESTDIR)$(bindir)/recordshell
-	chown root $(DESTDIR)$(bindir)/replayshell
-	chmod u+s $(DESTDIR)$(bindir)/replayshell
+	chown root $(DESTDIR)$(bindir)/youtubeshell
+	chmod u+s $(DESTDIR)$(bindir)/youtubeshell
