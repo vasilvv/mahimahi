@@ -155,7 +155,11 @@ const std::string ReplayServer::replay( const HTTPRequest & request ) const
     if ( i == all_responses.size() ) { /* no exact matches for request */
         if ( possible_matches.size() == 0 ) { /* no potential matches */
             response << "HTTP/1.1 200 OK\r\n";
-            response << "Content-Type: Text/html\r\nConnection: close\r\n";
+            response << "Content-Type: Text/html\r\n";
+            response << "Connection: close\r\n";
+            response << "Cache-Control: no-cache, no-store, must-revalidate\r\n";
+            response << "Pragma: no-cache\r\n";
+            response << "Expires: 0\r\n";
             response << "Content-Length: 24\r\n\r\nCOULD NOT FIND AN OBJECT";
         } else { /* return possible match with largest shared substring */
             return_message( possible_matches.at( closest_match( possible_matches, request.get_first_line() + "\r\n" ) ), response );
